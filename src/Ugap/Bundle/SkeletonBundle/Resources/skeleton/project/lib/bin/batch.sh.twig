@@ -1,0 +1,317 @@
+#!/bin/bash
+#set -x
+#
+
+# The CLI program file directory installation, required
+CLI_DIR=`dirname $0`
+
+# The CLI config files, required
+# To  : PROJECT/config/*.cli.conf
+CLI_CONF=""
+CLI_CONF="$(ls $CLI_DIR/../../config/*.cli.conf 2>/dev/null) $CLI_CONF"
+CLI_CONF="$(ls $CLI_DIR/*.cli.conf 2>/dev/null) $CLI_CONF"
+
+
+# Don't modify after this line
+
+function define(){
+	[ "$CLI_DBG" = 1 ] && echo "Define $1 $2 $3"
+	case "$1" in
+		command)
+		    defineCommand "$2" "$3"
+		    ;;
+		application)
+		    defineApplication "$2" "$3"
+		    ;;
+		project)
+		    defineProject "$2" "$3"
+		    ;;
+		*)
+		    adminHelp boot "undefined configuration [$1]"
+		    ;;
+	esac	
+}
+
+defineCommand(){
+	commands[${#commands[*]}]=$1
+	varSet command "$1" "$2"
+}
+
+defineApplication(){
+	applications[${#applications[*]}]=$1
+	varSet application "$1" "$2"
+}
+
+defineProject(){
+	projects[${#projects[*]}]=$1
+	varSet project "$1" "$2"
+}
+
+adminStartScript(){
+    local script=$(var command "$1" script)
+    [ -z "$script" ] && adminHelp boot "Command $1: property script not found" && exit 1
+    [ ! -f "$script" ] && adminHelp boot "Command $1: property script file not found <$script>" && exit 1
+    source $script $*
+}
+
+declare -A vars
+
+varSet(){
+	IFS=$'\n'
+	local line
+	for line in $3
+	do
+		[ -z "$line" ] && continue
+		local property=${line%=*}
+		local name
+		local value=${line#*=}
+		name="${1}_${2}_${property}"
+		# tabulation
+		name=${name//	/}
+		property=${property//	/}
+		# space
+		name=${name// /}
+		property=${property// /}
+		value=${value// /}
+		local func="hook_${1}_${property}"
+		if [ "$(isHook $func)" = 0 ]
+		then
+			vars[$name]=$($func "$value" "$2")
+#			echo "HOOK $(isHook $func): $func on $2 value $value TRANSLATED TO <<<<${vars[$name]}>>>>"
+		else
+			vars[$name]="$value"
+		fi
+		echo $- | grep x
+		[ "$?" = 0 ] && echo "varSet $name = \"$value\""
+	done
+	unset IFS
+}
+
+function isHook(){
+	case $1 in
+	hook_command_script) 		echo 0 ;;
+	hook_project_preprocess)	echo 0 ;;
+	hook_project_projdir)		echo 0 ;;
+	hook_project_logdir)		echo 0 ;;
+	*)							echo 1 ;;
+	esac
+}
+
+function var() {
+	local v=${vars[${1}_${2}_${3}]}
+	if [ -z "$v" ]
+	then
+		# Inherit property from application
+		local app=${vars[${1}_${2}_application]}
+		echo ${vars[application_${app}_${3}]}
+	else
+		echo $v
+	fi
+}
+
+function hook_project_preprocess() {
+	local app=$2
+	local preprocess=$1
+	if [ "$preprocess" = "" ]
+	then
+		preprocess="$(var project $app projdir)/etc/${app}.preprocess.php"
+		if [ -f "$preprocess" ]
+		then
+			echo $preprocess;
+			return
+		else
+			adminHelp boot \
+				"Cannot find preprocess file for application code '$app'" \
+				"Or define explicitly the property preprocess in $(dirname `dirname $0`)/etc"
+		fi
+	fi
+	if [ "${preprocess:0:1}" != "/" ]
+	then
+		preprocess="$(var project $app projdir)/${preprocess}"
+	fi
+	if [ -f "$preprocess" ]
+	then
+		echo $preprocess;
+		return
+	else
+		adminHelp boot "Cannot find preprocess file $preprocess for project '$app'"
+	fi
+}
+
+function hook_project_projdir() {
+	local proj=$2
+	local projdir=$1
+	if [ "${projdir:0:1}" != "/" ]
+	then
+		local app=$(var project $proj application)
+		projdir="$(var application $app srcdir)/$projdir"
+	fi
+	if [ -d "$projdir" ]
+	then
+		echo $projdir;
+	else
+		adminHelp boot "Cannot find project directory $projdir for project code '$proj'"
+	fi
+}
+
+function hook_project_logdir() {
+	local proj=$2
+	local logdir=$1
+	if [ "${logdir:0:1}" != "/" ]
+	then
+		logdir="$(var project $proj projdir)/$logdir"
+	fi
+	if [ ! -d "$logdir" ]
+	then	
+		mkdir --parent $logdir;
+	fi
+	echo $logdir;
+}
+
+function hook_command_script() {
+	local cmd=$2
+	local script=$1
+	if [ "$script" = "" ]
+	then
+		adminHelp boot \
+			"Cannot find script property in command '$cmd'" \
+			"Define explicitly the script property in $(dirname `dirname $0`)/etc"
+	fi
+	if [ "${script:0:1}" != "/" ]
+	then
+		script="$CLI_DIR/${script}"
+	fi
+	if [ -f "$script" ]
+	then
+		echo $script;
+	else
+		adminHelp boot "Cannot find script file $script for command code '$cmd'"
+	fi
+}
+
+adminHelp() {
+    case "$1" in
+    help)
+        echo "Usage:"
+	    for c in ${commands[@]}
+	    do
+	    	echo "	$CLI_CMD $c"
+	    	echo "		$(var command $c title)"
+	    done
+        echo "Options:"
+    	echo "	-v|--verbose Verbose, send log file to output after execution"
+    	echo "	-d|--debug   Execute shell script in debug mode (set -x)"
+    	echo "	-x|--xhprof  Activate profiler xhprof"
+		echo "	-n|--nolog   No logfile are dumped to disk"
+#       for c in "${!vars[@]}"
+#       do
+#           echo "vars: $c = ${vars[$c]}"
+#       done
+        ;;
+    boot)
+        echo "Error:"
+        [ ! -z "$2" ] && echo "   $2"
+        [ ! -z "$3" ] && echo "   $3"
+        ;;
+    bug|*)
+        echo "Error:"
+        [ ! -z "$2" ] && echo "   $2"
+        [ ! -z "$3" ] && echo "   $3"
+        adminHelp "help"
+        ;;
+    esac
+    exit 1
+}
+
+#####################
+# Starting point here
+
+# By default all commands don't show execution logs
+CLI_PRINT=0
+
+# By default execution logs are created
+CLI_NOLOG=0
+
+# The CLI program file, exported for recursion calls (also in php)
+export CLI_BIN=$0
+
+# The CLI program file name
+CLI_CMD=`basename $0`
+
+# Start the command
+# Parse args
+ix=0
+arguments=$*
+while [ ! -z "$1" ]
+do
+    case "$1" in
+    -*)
+        case "$1" in
+        -v|--verbose)
+            CLI_PRINT=1
+            ;;
+        -x|--xhprof)
+            export CLI_XHPROF=1
+            ;;
+        -n|--nolog)
+            CLI_NOLOG=1
+            ;;
+        -d|--debug)
+            set -x
+            CLI_DBG=1
+            ;;
+        -l|--loglevel)
+		    shift
+            export CLI_LOGLEVEL=$1
+            ;;
+        *)
+            adminHelp "bug" "Option inconnue: $1"
+            ;;
+        esac
+        ;;
+    *)
+        ARG[$ix]=$1
+        let ix++
+        ;;
+    esac
+    shift
+done
+
+# Load configuration files
+for i in $CLI_CONF
+do
+	[ "${ARG[0]}" = "config" ] && [ "${ARG[1]}" = "dump" ] && echo "## Loading file: $i" && cat $i
+	source $i
+done
+[ "${ARG[0]}" = "config" ] && [ "${ARG[1]}" = "dump" ] && exit 0
+
+# Start command with the defined user
+BATCH_USER=$(var command "${ARG[0]}" user)
+if [ "$BATCH_USER" = "" ]
+then
+    BATCH_USER=$(whoami)
+fi
+if [ ! `whoami` = "$BATCH_USER" ]
+then
+	BASE_DIR=`cd $CLI_DIR;pwd`
+	echo "### Running command '$BASE_DIR/$CLI_CMD ${ARG[0]}' on user '$BATCH_USER'"
+    su -l "$BATCH_USER" -c "$BASE_DIR/$CLI_CMD $arguments"
+    exit $?
+fi
+
+# Chargement de la config
+####adminStartScript config check noexit
+
+# Exécution de la commande
+case "admin.${ARG[0]}" in
+admin.help|admin.)
+    adminHelp help
+    ;;
+admin.launch|*)
+    # Lancer la commande
+    adminStartScript ${ARG[@]}
+    ;;
+esac
+
+# La sortie doit se faire correctement par la commande lancée
+exit 1

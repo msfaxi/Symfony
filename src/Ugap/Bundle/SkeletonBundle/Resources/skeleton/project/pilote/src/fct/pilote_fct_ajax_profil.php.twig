@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Ressource acl.profil
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('lib_wsx_acl_profil.php');
+
+
+function profilAdd($json){
+	$http = wsxExecutePOST
+		('ws.acl.profil'			// Ressource
+		, array(HTTP_CREATED)	// Code retours acceptés
+		,json_encode
+			($json
+			)
+		, array
+			(
+			)
+		);
+	echo $http['body'];
+}
+
+function profilPut($id,$json){
+	$http = wsxExecutePUT
+		('ws.acl.profil.id'
+		, array(HTTP_OK)
+		, json_encode($json)
+		, array('id' => $json['id'])
+		);	
+	echo $http['body'];
+}
+
+function profilDelete($id){
+	$http = wsxExecuteDELETE
+		('ws.acl.profil.id'
+		, array(HTTP_OK)
+		, array('id' => $id)
+		);
+	echo $http['body'];
+}
+
+/**
+ * Recherche d'un profil par son identifiant
+ *
+ * @param string $id  Identifiant du profil
+ * @return string     Profil sous forme JSON
+ */
+function profilGet($id) {
+    static $profilCache=array();
+    // Utiliser les données de cache dans une même exécution de script
+    if(isset($profilCache[$id])){
+    	echo $profilCache[$id];
+    }
+	$http = wsxExecuteGET
+		('ws.acl.profil.id'
+		, array(HTTP_OK)
+		, array('id' => $id)
+		);	
+	echo $http['body'];
+}
+
+

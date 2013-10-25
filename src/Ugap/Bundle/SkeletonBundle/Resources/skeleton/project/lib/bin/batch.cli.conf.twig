@@ -1,0 +1,40 @@
+
+
+# ==============================================
+# Command definitions
+# ==============================================
+
+define command config "
+    title=Command  line interpretor configuration
+    script=cli_admin_config5.sh
+"
+
+define command batch "
+    title=Start  php script in CLI mode
+    script=cli_admin_batch5.sh
+    user=root
+"
+
+define command log "
+    title=Start  log rotation for batch
+    script=cli_admin_log5.sh
+    user=root
+"
+
+
+# ==============================================
+# Définitions {{ ucprojectname }}
+# ==============================================
+
+define application {{ projectname}} "
+    srcdir=/var/www/{{ projectname}}
+    user=root
+    logdir=/logs/{{ projectname}}
+    logdir_maxdays=7
+"
+
+define project cli "
+	application={{ projectname}}
+	projdir={{ projectname}}-cli
+	preprocess=src/preprocess.php
+"

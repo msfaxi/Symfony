@@ -1,0 +1,22 @@
+<?php
+/**
+ * Accès au serveur SOLR pour la ressource acl
+ *
+ * @author majdi sfaxi 
+ * @package {{ucprojectname}}-LIB
+ * @subpackage SOLR
+ * @version $Id
+ */
+
+/**
+ * Dépendance technique
+ */
+require_once pathFile('hpp_krn_solr.php');
+require_once pathFile('lib_wsx_solr.php');
+
+// TODO Voir pour faire sauter cette définition maintenant redondante
+solrDefineServer
+    ('http://{{projectname}}-solr/select'        		// Nom donné au serveur de recherche
+    ,'http://{{projectname}}-solr/select'   			// Uri WSX de recherche dans l'index
+    );
+

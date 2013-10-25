@@ -1,0 +1,30 @@
+<?php
+/**
+ * Project: UGAP - {{ ucprojectname}}
+ *
+ * Définitions des GUID Solr
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com> 
+ * @package {{ ucprojectname}}-LIB
+ * @subpackage GUID
+ */
+
+/**
+ * Dépendance technique
+ */
+require_once pathFile('hpp_krn_guid.php');
+
+/**
+ * Identifiants des documents Solr
+ */
+guidDefineUUID('uuid.bdd.solr','v1.ubuntu');
+
+/**
+ * Identifiants des utilisateurs
+ */
+guidDefineUUID('uuid.silo.user','v1.ubuntu');
+
+/**
+ * Identifiants des ACL
+ */
+guidDefineUUID('uuid.silo.acl','v1.ubuntu');

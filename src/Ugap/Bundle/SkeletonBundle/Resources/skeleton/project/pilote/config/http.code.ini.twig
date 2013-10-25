@@ -1,0 +1,36 @@
+
+; Project: {{ projectname }}
+; @version $Id$
+
+; ==================================================================
+[CONSTANT]
+; Section des constantes de définition héritable via les dépendances
+; ==================================================================
+
+; Rien pour l'instant
+
+
+; ==================================================================
+[http.cause]
+; Liste des causes de réception de chaque code http
+; ==================================================================
+section.ttl = SECTION_TTL
+
+; Cas particulier lorsqu'aucune constante n'est définie
+HTTP_UNSET					= "Erreur sur code http $httpCode (non répertorié par l'application, à définir dans la configuration à la section [section.cause])"
+
+; Liste des correspondances entre le code HTTP et son texte explicatif
+HTTP_NOTFOUND 				= "La ressource demandée n'est pas trouvée"
+HTTP_CONFLICT               = "Le document a été modifié par quelqu'un d'autre. La version du document envoyé n'est pas identique à celle se trouvant en base de données"
+HTTP_INTERNALSERVERERROR	= "Une erreur interne s'est produite"
+HTTP_NOTAVAILABLE			= "Le serveur est momentanément incapable de répondre correctement"
+HTTP_PARTIALCONTENT			= "La ressource retournée est présente mais incomplète"
+HTTP_NOTMODIFIED			= "La ressource n'a pas pu être modifiée"
+HTTP_BADREQUEST				= "La requête est mal formée"
+HTTP_CONNECTFAILED			= "La connexion n'a pas pu être établie avec le serveur"
+HTTP_NOTALLOWED 			= "La requête à échouée"
+HTTP_CONTINUE				= "Erreur interne au serveur d'export"
+HTTP_UNAUTHORIZED           = "La ressource est soumise à authentification"
+HTTP_NOTIMPLEMENTED         = "Le service demandé n'est pas défini"
+HTTP_NOTACCEPTABLE          = "Opération non acceptable"
+HTTP_REQUESTENTITYTOOLARGE  = "Traitement abandonné dû à une requête trop importante"

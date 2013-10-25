@@ -1,0 +1,34 @@
+<?php
+/**
+ * Project: UGAP - {{ ucprojectname}}
+ *
+ * Définitions des droits
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ ucprojectname}}-LIB
+ * @subpackage ACL
+ */
+
+/**
+ * Pour la gestion des ressources: user, profil, droit, ressource
+ */
+aclDefineDroit
+	( 'read'
+	, 'Lire la ressource'
+	);
+
+aclDefineDroit
+	( 'create'
+	, 'Créer une ressource'
+	);
+
+aclDefineDroit
+	( 'write'
+	, 'Modifier de la ressource'
+	);
+
+aclDefineDroit
+	( 'delete'
+	, 'Suppression de la ressource'
+	);
+

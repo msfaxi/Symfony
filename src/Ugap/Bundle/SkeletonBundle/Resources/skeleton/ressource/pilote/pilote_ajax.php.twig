@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * Project: UGAP -  {{ ucprojectname }}
+ *
+ * Reesource  {{ ucressourcename }}
+ *
+ * @author majdi sfaxi <majdi.sfaxi@capgemini.com>
+ * @package {{ ucprojectname }}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('pilote_fct_ajax_{{ ressourcename }}.php');
+
+ajaxDefine
+	( '{{ ressourcename }}.add'				// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, '{{ ressourcename }}Add'					// Function
+	, array						// Parameters
+		(ajaxParamBodyAsJson()
+		)
+	, array						// ACL
+		(array('resource'=>'{{ ressourcename }}','right'=>'write')
+		)
+	);
+
+ajaxDefine
+	( '{{ ressourcename }}.put'				// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, '{{ ressourcename }}Put'					// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		,ajaxParamBodyAsJson()
+		)
+	, array						// ACL
+		(array('resource'=>'{{ ressourcename }}','right'=>'write')
+		)
+	);
+
+ajaxDefine
+	( '{{ ressourcename }}.delete'		    // Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, '{{ ressourcename }}Delete'				// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		)
+	, array						// ACL
+		(array('resource'=>'{{ ressourcename }}','right'=>'write')
+		)
+	);
+
+ajaxDefine
+	( '{{ ressourcename }}.get'				// Ajax name from .htaccess
+	, 'GET'						// Allowed verb
+	, '{{ ressourcename }}Get'					// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		)
+	, array						// ACL
+		(array('resource'=>'{{ ressourcename }}','right'=>'read')
+		)
+	);
+	

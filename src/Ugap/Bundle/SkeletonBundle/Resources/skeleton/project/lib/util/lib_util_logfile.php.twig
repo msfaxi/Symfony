@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * Project: UGAP - {{ ucprojectname}}
+ *
+ * Définition des logs par techno.
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ ucprojectname}}-LIB
+ * @subpackage UTIL
+ */
+
+/**
+ * Outil de gestion des fichiers de log
+ */
+require_once pathFile('hpp_krn_logfile.php');
+
+/**
+ * Configuration du format de log standard
+ */
+logfileDefineFormat
+    ('format.standard'          		                          	// Nom du format de trace
+    ,'[$date] $techno $gravite $message ($function at $file#$line)' // Format du log
+    ,array            			                               		// Paramètres
+        (logfileAttachParam('date'    ,'date','Y-m-d H:i:s')
+        ,logfileAttachParam('techno'  ,'logfileLogParameterMessageCode')
+        ,logfileAttachParam('gravite' ,'logfileLogParameterLevelString')
+        ,logfileAttachParam('function','logfileLogStackFunction')
+        ,logfileAttachParam('file'    ,'logfileLogStackFile')
+        ,logfileAttachParam('line'    ,'logfileLogStackLine')
+        ,logfileAttachParam('message' ,'logfileLogParameterMessage')
+        )
+    );
+

@@ -1,0 +1,76 @@
+<?php
+
+/**
+ * Project: UGAP- {{ucprojectname}}
+ *
+ * Services REST de la ressource PROFIL
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-SILO-ACL
+ * @subpackage RESTFUL
+ * @version $Id$
+ */
+
+require_once pathFile('hpp_krn_restful.php');
+require_once pathFile('lib_wsx_acl_profil.php');
+
+/**
+ * Dépendances sur les fonctions rest applicatives pour la ressource
+ */
+require_once pathFile('silo_fct_restful_acl_profil.php');
+
+/**
+ * Définitions des services REST sur la ressource PROFIL
+ */
+
+restfulDefine
+	('ws.acl.profil'
+	,array
+		(restfulDefinePOST
+		    ('siloAclProfilRestPost'
+		    ,array
+		    	(restfulParamBodyAsJson()
+		        ,restfulParamEtagNew('uuid.silo.acl')
+		        )
+		    ,array
+				('{{projectname}}-pilote'
+		    	)
+			)
+		)
+	);
+
+restfulDefine
+	('ws.acl.profil.id'
+	,array
+		(restfulDefineGET
+		    ('siloAclProfilRestGET'
+		    ,array
+		    	(restfulParam('id')
+		    	,restfulParam('format','json')	// json | autre format à supporter?
+		    	)
+		    ,array
+		    	('{{projectname}}-pilote'
+		    	)
+		    )
+		,restfulDefinePUT
+			('siloAclProfilRestPUT'
+		    ,array
+		    	(restfulParam('id')
+		        ,restfulParamBodyAsJson()
+		        ,restfulParamEtagFromJson('_version_')
+		        )
+		    ,array
+		    	('{{projectname}}-pilote'
+		    	)
+		    )
+		,restfulDefineDELETE
+			('siloAclProfilRestDELETE'
+		    ,array
+		    	(restfulParam('id')
+		        )
+		    ,array
+		    	('{{projectname}}-pilote'
+		    	)
+		    )
+		)
+	);

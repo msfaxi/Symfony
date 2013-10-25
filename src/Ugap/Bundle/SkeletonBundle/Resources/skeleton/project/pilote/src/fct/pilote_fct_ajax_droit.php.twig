@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Ressource acl.droit
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('lib_wsx_acl_droit.php');
+
+
+function droitAdd($json){
+	$http = wsxExecutePOST
+		('ws.acl.droit'			// Ressource
+		, array(HTTP_CREATED)	// Code retours acceptés
+		,json_encode
+			($json
+			)
+		, array
+			(
+			)
+		);
+	echo $http['body'];
+}
+
+function droitPut($id,$json){
+	$http = wsxExecutePUT
+		('ws.acl.droit.id'
+		, array(HTTP_OK)
+		, json_encode($json)
+		, array('id' => $json['id'])
+		);	
+	echo $http['body'];
+}
+
+function droitDelete($id){
+	$http = wsxExecuteDELETE
+		('ws.acl.droit.id'
+		, array(HTTP_OK)
+		, array('id' => $id)
+		);
+	echo $http['body'];
+}
+
+/**
+ * Recherche d'un droit par son identifiant
+ *
+ * @param string $id  Identifiant du droit
+ * @return string     Droit sous forme JSON
+ */
+function droitGet($id) {
+    static $droitCache=array();
+    // Utiliser les données de cache dans une même exécution de script
+    if(isset($droitCache[$id])){
+    	echo $droitCache[$id];
+    }
+	$http = wsxExecuteGET
+		('ws.acl.droit.id'
+		, array(HTTP_OK)
+		, array('id' => $id)
+		);	
+	echo $http['body'];
+}
+
+

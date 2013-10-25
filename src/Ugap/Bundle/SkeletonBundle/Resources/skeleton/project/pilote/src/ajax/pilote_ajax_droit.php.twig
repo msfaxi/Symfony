@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Ressource droit
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('pilote_fct_ajax_droit.php');
+
+ajaxDefine
+	( 'droit.add'				// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'droitAdd'				// Function
+	, array						// Parameters
+		(ajaxParamBodyAsJson()
+		)
+	, array						// ACL
+		(array('resource'=>'droit','right'=>'create')
+		)
+	);
+
+ajaxDefine
+	( 'droit.put'				// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'droitPut'				// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		,ajaxParamBodyAsJson()
+		)
+	, array						// ACL
+		(array('resource'=>'droit','right'=>'write')
+		)
+	);
+
+ajaxDefine
+	( 'droit.delete'			// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'droitDelete'			// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		)
+	, array						// ACL
+		(array('resource'=>'droit','right'=>'delete')
+		)
+	);
+
+ajaxDefine
+	( 'droit.get'				// Ajax name from .htaccess
+	, 'GET'						// Allowed verb
+	, 'droitGet'				// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		)
+	, array						// ACL
+		(array('resource'=>'droit','right'=>'read')
+		)
+	);

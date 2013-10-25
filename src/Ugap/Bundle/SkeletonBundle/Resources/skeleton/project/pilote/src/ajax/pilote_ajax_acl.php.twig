@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Ressource acl
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('pilote_fct_ajax_acl.php');
+
+ajaxDefine
+	( 'acl.add'					// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'aclAdd'					// Function
+	, array						// Parameters
+		(ajaxParamBodyAsJson()
+		)
+	, array						// ACL
+		(array('resource'=>'acl','right'=>'create')
+		)
+	);
+
+ajaxDefine
+	( 'acl.put'					// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'aclPut'					// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		,ajaxParamBodyAsJson()
+		)
+	, array						// ACL
+		(array('resource'=>'acl','right'=>'write')
+		)
+	);
+
+ajaxDefine
+	( 'acl.delete'				// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'aclDelete'				// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		)
+	, array						// ACL
+		(array('resource'=>'acl','right'=>'delete')
+		)
+	);
+
+ajaxDefine
+	( 'acl.get'					// Ajax name from .htaccess
+	, 'GET'						// Allowed verb
+	, 'aclGet'					// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		)
+	, array						// ACL
+		(array('resource'=>'acl','right'=>'read')
+		)
+	);

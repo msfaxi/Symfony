@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * Project: UGAP - {{ ucprojectname }}
+ *
+ * {{ ucressourcename }}
+ *
+ * @author majdi sfaxi <majdi.sfaxi@capgemini.com>
+ * @package {{ ucprojectname }}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('lib_wsx_{{ ressourcename }}.php');
+
+
+function {{ ressourcename }}Add($json){
+	$http = wsxExecutePOST
+		('ws.{{ ressourcename }}'				// Ressource
+		, array(HTTP_CREATED)	// Code retours acceptés
+		,json_encode
+			($json
+			)
+		, array
+			(
+			)
+		);
+	echo $http['body'];
+}
+
+function {{ ressourcename }}Put($id,$json){
+	$http = wsxExecutePUT
+		('ws.{{ ressourcename }}.id'
+		, array(HTTP_OK)
+		, json_encode($json)
+		, array('id' => $json['id'])
+		);	
+	echo $http['body'];
+}
+
+function project{{ ressourcename }}($id){
+	$http = wsxExecuteDELETE
+		('ws.{{ ressourcename }}.id'
+		, array(HTTP_OK)
+		, array('id' => $id)
+		);
+	echo $http['body'];
+}
+
+function {{ ressourcename }}Get($id) {
+    static ${{ ressourcename }}Cache=array();
+    // Utiliser les données de cache dans une même exécution de script
+    if(isset(${{ ressourcename }}Cache[$id])){
+    	echo ${{ ressourcename }}Cache[$id];
+    }
+	$http = wsxExecuteGET
+		('ws.{{ ressourcename }}.id'
+		, array(HTTP_OK)
+		, array('id' => $id)
+		);	
+	echo $http['body'];
+}
+
+

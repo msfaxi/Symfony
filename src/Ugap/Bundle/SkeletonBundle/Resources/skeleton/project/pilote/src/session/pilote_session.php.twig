@@ -1,0 +1,61 @@
+<?php
+/**
+ * Project: UGAP - {{ ucprojectname }}
+ *
+ * Définitions des variables de session
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ ucprojectname }}-PILOTE
+ * @subpackage SESSION
+ */
+
+require_once pathFile('hpp_krn_session.php');
+
+/**
+ * Cookie utilisé comme session utilisateur
+ */
+sessionDefineCookie
+    ( '{{ projectname }}'					   				// Nom de la session / du cookie (préfixe)
+    , propertyGet('secret://session.timeout')	// TTL du cookie (en seconde), ou zero pour durée de vie du navigateur
+    , propertyGet('secret://session.key')		// Clé de chiffrage du cookie
+    , ''										// Domaine du cookie
+    , 4096										// Taille maximum d'un cookie
+//	,'sessionCheck'								// Hook function
+	);
+
+/**
+ * Identifiant unique de session
+ */
+sessionDefineVar
+    ( '{{ projectname }}'		 				// Nom de la session
+    , 'session_id'					// Nom de la variable
+    , microtime(true)				// Default value
+    );
+
+/**
+ * Identifiant de l'utilisateur
+ */
+sessionDefineVar
+    ( '{{ projectname }}'		 				// Nom de la session
+    , 'id'							// Nom de la variable
+    , null							// Default value
+    );
+
+/**
+ * Login de l'utilisateur
+ */
+sessionDefineVar
+    ( '{{ projectname }}'		 				// Nom de la session
+    , 'login'						// Nom de la variable
+    , null							// Default value
+    );
+
+/**
+ * Les profils de l'utilisateur
+ */
+sessionDefineVar
+    ( '{{ projectname }}'						// Nom de la session
+    , 'acl'							// Nom de la variable
+    , null							// Default value
+    );
+

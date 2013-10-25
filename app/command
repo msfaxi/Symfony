@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+// app/console
+
+use Ugap\Bundle\SkeletonBundle\Command\TestCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+$application->add(new Ugap\Bundle\SkeletonBundle\Command\TestCommand());
+$application->run();

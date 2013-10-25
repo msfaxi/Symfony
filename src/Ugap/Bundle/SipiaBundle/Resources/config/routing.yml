@@ -1,0 +1,9 @@
+ugap_sipia_homepage:
+    pattern:  /hello/{name}
+    defaults: { _controller: UgapSipiaBundle:Default:index }
+
+    
+ugap_sipia_homepage2:
+    pattern:  /homepage/
+    defaults: { _controller: UgapSipiaBundle:Sipia:index }
+    

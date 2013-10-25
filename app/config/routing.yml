@@ -1,0 +1,8 @@
+ugap_skeleton:
+    resource: "@UgapSkeletonBundle/Resources/config/routing.yml"
+    prefix:   /
+
+ugap_sipia:
+    resource: "@UgapSipiaBundle/Resources/config/routing.yml"
+    prefix:   /
+

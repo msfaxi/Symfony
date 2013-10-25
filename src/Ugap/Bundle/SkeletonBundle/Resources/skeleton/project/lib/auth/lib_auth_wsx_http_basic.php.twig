@@ -1,0 +1,178 @@
+<?php
+
+/**
+ * Déclaration des appels de service en mode Authentification HTTP Basic
+ * 
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @version $Id: lib_auth_wsx_http_basic.php 3998 2012-02-20 17:39:22Z jarneodo $
+ * 
+ * Exemples de configuration de service appelé
+ * <code>
+ * wsxDefineClient
+ *		( 'client.x'
+ *      , 'ws.y'
+ *		, 'auth.http.basic'
+ *		, array
+ *			( wsxParam('login','wsxStatic','myLogin')
+ *			, wsxParam('passd','wsxStatic','myKey')
+ *			)
+ *		);
+ * </code>
+ */
+
+require_once pathFile('hpp_krn_wsx.php');
+
+wsxDefineAuth
+	('auth.http.basic'							// New Auth Type Instance
+	,null										// Based on this root Auth Type Instance
+	,wsxParamAuth('wsxAuthMethodHttp')			// Handler function, client side
+	,wsxParamAuth('wsxAuthVerifyHttp')			// Handler function, server side
+	,array										// Expected parameters from wsxDefineClient() declaration
+		('login'								// rfc2617 userid   *<TEXT excluding ":">
+		,'password'								// rfc2617 password *TEXT
+		)
+	// Runtime configuration
+	,array
+		(wsxParamBuildQuery
+			('wsxBuildQueryStringRfc3986v1'				// Construction de la Query String
+			)
+		,wsxParam
+			('http.default.headers'						// Entêtes http par défaut
+			,'wsxStatic'								// Fonction de construction du paramètre de runtime
+			,array										// Paramètre 1 statique
+				('Accept-Charset'			=> 'utf-8'	// Default encoding
+				/*
+				 *  PHP/cURL: disable 100-continue expectation
+				 */			
+				,'Expect'                   => ''
+				)
+			)
+		,wsxParam
+			('http.basic.realm'							// Envoi d'un entête WWW-Authenticate 
+			,'wsxStatic'								// si un titre realm est indiqué
+			,'Auth required'							// REALM string or NULL for no realm
+			)
+		,wsxParam
+			('curl.default.options'
+			,'wsxStatic'
+			,array
+				/*
+				 * The contents of the "Accept-Encoding: " header. 
+				 * This enables decoding of the response. 
+				 * Supported encodings are "identity", "deflate", and "gzip". 
+				 * If an empty string, "", is set, a header containing all supported encoding types is sent.
+				 */
+				(CURLOPT_ENCODING			=> ''
+				)
+			)
+		)
+	);
+
+/*
+TODO DEBUG the Digest Authent
+wsxDefineAuth
+	('auth.http.digest'							// New Auth Type Instance
+	,'auth.http.basic'							// Based on this root Auth Type Instance
+	,null										// Inherit handler function
+	,null										// Inherit wsxDefine() parameters
+	,array										// Runtime configuration supersedes
+		(wsxParam
+			('curl.default.options'
+			,'wsxStatic'
+			,array
+				(CURLOPT_HTTPAUTH			=> CURLAUTH_DIGEST	// HTTP authentication method
+				)
+			)
+		)
+	);
+*/
+
+/**
+ * Authentification de service en HTTP Basic
+ * 
+ * Parameters expected:
+ * - login
+ * - password
+ * - curl.default.options
+ * - http.default.headers
+ * - http.default.cookies
+ * @return Array 	Array with 3 keys: curl, headers, cookies
+ */
+function wsxAuthMethodHttp(){
+	$options
+		=wsxParamGet('curl.default.options',array())
+		+array
+			(CURLOPT_HTTPAUTH	 	=> CURLAUTH_BASIC	// Default HTTP authentication method
+			,CURLOPT_HEADER			=> true				// Get the headers response
+			,CURLOPT_FOLLOWLOCATION => true				// Follow redirections
+			,CURLOPT_USERAGENT		=> 'php curl wsx wsxAuthMethodHttp $Rev: 15784 $' // User Agent
+			,CURLOPT_ENCODING		=> 'gzip,deflate'	// Supported encoding
+			,CURLOPT_CONNECTTIMEOUT	=> 3				// Default time out on connect
+			,CURLOPT_TIMEOUT		=> 30				// Default time out on response
+			)
+		;
+	$headers
+		=wsxParamGet('http.default.headers',array())	// Priority of these options
+		+array
+			('Accept-Charset'		 => 'utf-8'			// Default encoding
+ 			)
+		;
+	// See rfc2617
+	$credit=sprintf
+		('%s:%s'
+		,wsxParamAttachGet('login')
+		,wsxParamAttachGet('password')
+		);
+	$options[CURLOPT_USERPWD]=$credit;					// Accreditation
+	return array
+		('headers' 	=> $headers
+		,'cookies'	=> wsxParamGet('http.default.cookies',array())
+		,'curl'		=> $options
+		);
+}
+
+function wsxAuthVerifyHttp(){
+	if (!isset($_SERVER['PHP_AUTH_USER'])) {
+		$realm=wsxParamGet('http.basic.realm');
+		if($realm!==null){
+		    header('HTTP/1.0 401 Unauthorized');
+			header('WWW-Authenticate: Basic realm="'.addslashes($realm).'"');
+		}
+	    return null;
+	}elseif(!isset($_SERVER['PHP_AUTH_PW'])){
+		$realm=wsxParamGet('http.basic.realm');
+		if($realm!==null){
+		    header('HTTP/1.0 401 Unauthorized');
+			header('WWW-Authenticate: Basic realm="'.addslashes($realm).'"');
+		}
+		return null;
+	}elseif($_SERVER['PHP_AUTH_USER']!=wsxParamAttachGet('login')){
+		$realm=wsxParamGet('http.basic.realm');
+		if($realm!==null){
+		    header('HTTP/1.0 401 Unauthorized');
+			header('WWW-Authenticate: Basic realm="'.addslashes($realm).'"');
+		}
+		return null;
+	}elseif($_SERVER['PHP_AUTH_PW']!=wsxParamAttachGet('password')){
+		$realm=wsxParamGet('http.basic.realm');
+		if($realm!==null){
+		    header('HTTP/1.0 401 Unauthorized');
+			header('WWW-Authenticate: Basic realm="'.addslashes($realm).'"');
+		}
+	    wsxLogDebug() && wsxLogDebug
+	    	(var_export
+		    	(array
+		    		('found login'		=>$_SERVER['PHP_AUTH_USER']
+		    		,'found password'	=>$_SERVER['PHP_AUTH_PW']
+				//	,'expected login'	=>wsxParamAttachGet('login')
+				//	,'expected password'=>wsxParamAttachGet('password')
+		    		)
+		    	,true
+		    	)
+	    	);
+	    return false;
+	}else{
+		// ok
+		return true;
+	}
+}

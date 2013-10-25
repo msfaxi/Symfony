@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Services REST de la ressource droit du silo ACL
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-SILO-ACL
+ * @subpackage RESTFUL
+ * @filesource
+ */
+
+require_once pathFile('hpp_krn_date.php');
+require_once pathFile('hpp_krn_guid.php');
+require_once pathFile('lib_dao_acl_droit.php');
+
+function siloAclDroitRestGET($id,$format){
+	if($format!=='json'){
+		throw new Exception
+			('Format '.$format.' not found, expected formats: json only'
+			,HTTP_NOTIMPLEMENTED
+			);
+	}
+
+	$qry=daoSelect
+		( 'droit'
+		, array
+			( 'table'
+			, 'id'
+			, '_version_'
+			, 'droit_id'
+			, 'label'
+			)
+		, 'id = :id'
+		, array
+			( ':id' => $id
+			)
+		);
+	$droit = daoFetchAll($qry);
+	// Un seul résultat attendu
+	if(count($droit)<>1){
+		throw new Exception
+			('Accès à l\'utilisateur '.var_export($id,true)
+			,HTTP_INTERNALSERVERERROR
+			);
+	}
+	// Envoi du résultat
+	httpSendCodeHTTP(HTTP_OK,array('Content-type: text/json'));
+	echo json_encode($droit[0]);
+}
+
+function siloAclDroitRestPost($json,$id){
+	if(!isset($json['table'])){
+		throw new Exception('Field "table" MUST BE set to "droit", field not found',HTTP_BADREQUEST);
+	}
+	if($json['table']<>'droit'){
+		throw new Exception('Field table MUST BE droit, found: '.var_export($json['table'],true),HTTP_BADREQUEST);
+	}
+	$result = daoInsert
+		( 'droit'
+		, array
+			( 'table'		=> 'droit'
+			, 'id' 			=> $id
+			, 'droit_id' 	=> $json['droit_id']
+			, 'label' 		=> $json['label']
+//			, 'acl'			=> $json['acl']		// Contrôle d'accès à la ressource droit
+			)
+		);
+	httpSendCodeHTTP(HTTP_CREATED,array('Content-type: text/json'));
+	echo  json_encode(array('id'=>$id,'_version_'=>'1'));
+}
+
+function siloAclDroitRestPUT($id,$json,$etag){
+	$result = daoUpdate
+		( 'droit'
+		, array
+			( 'id' => $id
+			,'_version_' => $etag
+			)
+		, array
+			( 'id' 			=> $id
+			, 'droit_id' 	=> $json['droit_id']
+			, 'label' 		=> $json['label']
+			)
+		);
+	
+	if ($result > 0) {
+		$json['_version_'] = $etagNew;
+		echo  json_encode($json);
+	} else {
+		throw new Exception
+			('Droit: id='.$id.' _version_='.$etagNew 
+				,HTTP_CONFLICT
+			);
+	}
+}
+
+function siloAclDroitRestDELETE($id){
+	daoDelete
+		( 'droit'
+		, array('id' => $id)
+		);
+	httpSendCodeHTTP(HTTP_OK,array('Content-type: text/json'));
+	echo json_encode("ok");
+}

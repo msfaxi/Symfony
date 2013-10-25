@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * @author majdi sfaxi <majdi.sfaxi@capgemini.com>
+ * @package {{ucprojectname}}-SILO-ACL
+ * @subpackage DAO
+ */
+
+
+/**
+ * Dépendance sur la bdd
+ */
+require_once pathFile('lib_dao_bdd_solr.php');
+require_once pathFile('lib_guid_solr.php');
+
+/**
+ * Definition de la table des dossiers
+ */
+daoDefineTable
+	( 'droit'
+	, 'droit'
+	, 'bdd.solr'
+	,array
+		( 'id'
+		, 'table'			// Document type
+		, '_version_'		// Version automatique SOLR
+		, 'droit_id'
+		, 'label'
+		, 'acl'				// Contrôle d'accès à la ressource droit
+		)
+	);
+
+daoDefineSolrFields
+	( 'droit'
+	, array
+		('acl' => array('multiple'=>true)	// Le champ possède plusieurs valeurs
+		)
+	);
+
+

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bienvenue sur ma première page avec le Site du Zéro !</title>
+  </head>
+  <body>
+   <h1>Hello {{ nom }} !</h1>
+    <div class="widget-box collapsible">
+	    <div class="widget-title">
+	        <a href="#widgetContentWelcome" data-toggle="collapse"><span class="icon"><i class="icon-arrow-right"></i></span>
+	        <h5>Informations SIPIA du {{>~model().home.info.date}}</h5></a>
+	        {{for tmpl="w_lib_content_box_menu" ~id="widgetContentWelcome" /}}
+	    </div>
+	    <div class="collapse in" id="widgetContentWelcome">
+	        <div class="widget-content">
+	            <pre>
+		            {{>~model().home.info.message}}
+	            </pre>
+	            <br/>
+	            <img src="{{:~path()}}/img/logo_credit.jpg"/>
+	        </div>
+	    </div>
+	</div>
+  </body>
+</html>
+
+

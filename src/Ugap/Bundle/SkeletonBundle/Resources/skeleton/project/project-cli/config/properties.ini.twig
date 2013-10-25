@@ -1,0 +1,82 @@
+
+; ================================================================
+[DEPENDENCY]
+; ================================================================
+; Dépendances envers d'autres fichiers INI
+
+; Le fichier de définition de l'application
+section.dependency[] = ROOT_CONFIG "/{{ projectname }}.ini"
+
+
+; ================================================================
+[CONSTANT]
+; ================================================================
+
+
+; ================================================================
+[uri]
+; ================================================================
+
+; Les uris manipulées par l'application
+section.include[] = ROOT_CONFIG "/{{ projectname }}.uri.ini"
+
+
+; ================================================================
+[logfile]
+; ================================================================
+
+; L'ensemble des fichiers de logfile du framework
+section.include[] = ROOT_CONFIG "/{{ projectname }}.ini"
+
+; Les niveaux de trace peuvent être surchargé localement ici
+;wsx.level		= LOG_NOTICE
+
+
+; ================================================================
+[solr]
+; ================================================================
+
+; Authentification SOLR
+section.include[] = ROOT_CONFIG "/{{ projectname }}.secret.ini#solr"
+
+
+; ================================================================
+[secret]
+; ================================================================
+
+; Clés pour les services WSX
+section.include[] = ROOT_CONFIG "/{{ projectname }}.secret.ini"
+
+
+; ================================================================
+; Messages d'erreurs à remonter dans le navigateur
+; ================================================================
+
+[ajax...]
+; L'ensemble des codes http supportés par le framework
+;section.include[] = PATH_CONFIG "/http.code.ini#http.cause"
+
+[ajax.user.login]
+titre             = "Impossible de s'authentifier"
+section.include[] = PATH_CONFIG "/http.code.ini#http.cause"
+
+[ajax.auth.login]
+titre             = "Erreur d'authentification"
+section.include[] = PATH_CONFIG "/http.code.ini#http.cause"
+
+[ajax.auth.logout]
+titre             = "Erreur lors de la déconnexion, veuillez vérifier que vous êtes bien déconnecté"
+section.include[] = PATH_CONFIG "/http.code.ini#http.cause"
+
+[ajax.dossier.add]
+titre             = "Impossible d'ajouter un dossier"
+section.include[] = PATH_CONFIG "/http.code.ini#http.cause"
+
+[ajax.user.modify]
+titre             = "Impossible de modifier un dossier"
+section.include[] = PATH_CONFIG "/http.code.ini#http.cause"
+
+[ajax.stat.centrale]
+titre             = "Impossible d'accéder aux statistiques"
+section.include[] = PATH_CONFIG "/http.code.ini#http.cause"
+

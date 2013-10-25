@@ -1,0 +1,54 @@
+<?php
+/**
+ * Déclaration des appels de service sur la recherche transverse
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ */
+
+require_once pathFile('hpp_krn_wsx.php');
+require_once pathFile('lib_auth_wsx_http_basic.php');
+
+/*
+ * **************************************************************
+ * Définition des URI
+ * **************************************************************
+ */
+
+wsxDefineUri
+	('ws.search'									// Nom donné au service
+	,propertyGet('uri://ws.search')
+	,array										// Enumération des paramètres de cette URI
+		(
+		)
+	);
+
+/*
+ * **************************************************************
+ * Définition des CLIENTS
+ * --------------------------------------------------------------
+ * Définition des paramètres de configuration d'un appel de service sur une ressource REST
+ * Valable coté CLIENT et coté SERVEUR
+ * Un service peut être accédé par plusieurs clients via plusieurs Type d'Authentification
+ * **************************************************************
+ */
+
+wsxDefineClient
+	( '{{projectname}}-pilote'							// Nom du client
+	, array 									// Nom des services cibles
+		( 'ws.search'
+		)
+ 	, 'auth.http.basic'							// Nom du Type d'Authentification
+	, array										// Les paramètres nécessaires au Type d'Authent
+		(wsxParam								// Paramètre construit lorsque cela est nécessaire
+			('login'
+			,'propertyGet'
+			,'secret://{{projectname}}.pilote.identity'
+			)
+		,wsxParam								// Paramètre construit lorsque cela est nécessaire
+			('password'
+			,'propertyGet'
+			,'secret://{{projectname}}.pilote.password'
+			)
+		)
+	);
+

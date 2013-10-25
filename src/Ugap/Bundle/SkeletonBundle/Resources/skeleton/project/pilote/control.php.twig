@@ -1,0 +1,69 @@
+<?php
+/**
+ * This file is needed if you want to use relative path in the root .htaccess
+ * 
+ * The best way is to use directly php_value directive with absolute path if possible:
+ * php_value auto_prepend_file     "/var/www/<where/you/want>/config/static/<something>.preprocess.php"
+ * php_value auto_append_file      "/var/www/<where/you/want>/_dependencies/sitri-lib/src/util/lib_util_survey.php"
+ * 
+ * Where htdocs file is located here:
+ * 		/var/www/<where/you/want>/htdocs/<some/path>/<file.php>
+ * 
+ * In other case, the rewrite rules must be written like this:
+ * RewriteRule ^uri$	/<where/you/want>/control.php?_htdocs=<relative/path/to/htdocs>/<my/physical/uri> [PT,L,QSA]
+ */
+
+/**
+ * Relative pathes from install directory
+ */
+control_start
+	('src/preprocess.apache.php'
+	,null
+	);
+
+/**
+ * Emulate auto_prepend_file and auto_append_file php_value directives
+ * @param string $auto_prepend_file	Prepend file name, required
+ * @param string $auto_append_file  Append file name or null
+ * @throws Exception if parameter _htdocs in not set in RewriteRule directive
+ */
+function control_start($auto_prepend_file,$auto_append_file=null){
+	/*
+	 * Check controller syntax
+	 */
+	if(!isset($_GET['_htdocs'])){
+		throw new Exception('Internal controller error: _htdocs not found',500);
+	}
+	$htdocs=$_GET['_htdocs'];
+	$htroot=dirname(__FILE__);
+	/*
+	 * Clear controller parameter
+	 */
+	unset($_GET['_htdocs']);
+	unset($_REQUEST['_htdocs']);
+	/*
+	 * Emulate "php_value auto_prepend_file" directive
+	 */
+	require $htroot.'/'.$auto_prepend_file;
+	/*
+	 * Emulate "php_value auto_append_file" directive
+	 */
+	if($auto_append_file!==null){
+		register_shutdown_function
+			('control_register_shutdown'
+			,$htroot.'/'.$auto_append_file
+			);
+	}
+	/*
+	 * Start the htdocs php script
+	 */
+	require $htroot.'/htdocs/'.$htdocs;
+}
+
+function control_register_shutdown($auto_append_file){
+	/*
+	 * Emulate "php_value auto_append_file" directive
+	 */
+	include $auto_append_file;
+}
+

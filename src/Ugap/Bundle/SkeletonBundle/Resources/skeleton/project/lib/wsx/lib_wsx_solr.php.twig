@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ * 
+ * API REST pour le serveur SOLR
+ * Définition des URI dur serveur SOLR et définition des clients autorisés
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package SIPIA-LIB
+ * @version $Id$
+ */
+
+require_once pathFile('lib_auth_wsx_http_basic.php');
+
+wsxDefineUri
+	('http://{{projectname}}-solr/update'
+	,wsxUriTemplate
+		('propertyGet'
+		,'uri://{{projectname}}.solr.update'
+		)
+	);
+
+wsxDefineUri
+	('http://{{projectname}}-solr/select'
+	,wsxUriTemplate
+		('propertyGet'
+		,'uri://{{projectname}}.solr.select'
+		)
+	);
+
+wsxDefineUri
+	('http://{{projectname}}-solr/get'
+	,wsxUriTemplate
+		('propertyGet'
+		,'uri://{{projectname}}.solr.get'
+		)
+	);
+
+wsxDefineClient
+	( array										// Nom du client
+		('{{projectname}}-silo'
+		,'{{projectname}}-cli'
+		)
+	, array										// Nom du service cible
+		('http://{{projectname}}-solr/update'
+		,'http://{{projectname}}-solr/select'
+		,'http://{{projectname}}-solr/get'
+		)
+ 	, 'auth.http.basic'							// Nom du Type d'Authentification
+	, array										// Les paramètres nécessaires au Type d'Authent
+		(wsxParam								// Paramètre construit lorsque cela est nécessaire
+			('login'
+			,'propertyGet'
+			,'solr://login'
+			)
+		,wsxParam								// Paramètre construit lorsque cela est nécessaire
+			('password'
+			,'propertyGet'
+			,'solr://password'
+			)
+		)
+	);
+

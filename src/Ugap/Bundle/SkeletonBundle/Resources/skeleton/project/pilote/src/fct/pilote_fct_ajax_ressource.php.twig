@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Ressource acl.ressource
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('lib_wsx_acl_ressource.php');
+
+
+function ressourceAdd($json){
+	$http = wsxExecutePOST
+		('ws.acl.ressource'			// Ressource
+		, array(HTTP_CREATED)		// Code retours acceptés
+		,json_encode
+			($json
+			)
+		, array
+			(
+			)
+		);
+	echo $http['body'];
+}
+
+function ressourcePut($id,$json){
+	$http = wsxExecutePUT
+		('ws.acl.ressource.id'
+		, array(HTTP_OK)
+		, json_encode($json)
+		, array('id' => $json['id'])
+		);	
+	echo $http['body'];
+}
+
+function ressourceDelete($id){
+	$http = wsxExecuteDELETE
+		('ws.acl.ressource.id'
+		, array(HTTP_OK)
+		, array('id' => $id)
+		);
+	echo $http['body'];
+}
+
+/**
+ * Recherche d'une ressource par son identifiant
+ *
+ * @param string $id  Identifiant de la ressource
+ * @return string     Ressource sous forme JSON
+ */
+function ressourceGet($id) {
+    static $ressourceCache=array();
+    // Utiliser les données de cache dans une même exécution de script
+    if(isset($ressourceCache[$id])){
+    	echo $ressourceCache[$id];
+    }
+	$http = wsxExecuteGET
+		('ws.acl.ressource.id'
+		, array(HTTP_OK)
+		, array('id' => $id)
+		);	
+	echo $http['body'];
+}
+
+

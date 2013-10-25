@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Ressource ressource
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('pilote_fct_ajax_ressource.php');
+
+ajaxDefine
+	( 'ressource.add'			// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'ressourceAdd'			// Function
+	, array						// Parameters
+		(ajaxParamBodyAsJson()
+		)
+	, array						// ACL
+		(array('resource'=>'ressource','right'=>'create')
+		)
+	);
+
+ajaxDefine
+	( 'ressource.put'			// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'ressourcePut'			// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		,ajaxParamBodyAsJson()
+		)
+	, array						// ACL
+		(array('resource'=>'ressource','right'=>'write')
+		)
+	);
+
+ajaxDefine
+	( 'ressource.delete'		// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'ressourceDelete'			// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		)
+	, array						// ACL
+		(array('resource'=>'ressource','right'=>'delete')
+		)
+	);
+
+ajaxDefine
+	( 'ressource.get'			// Ajax name from .htaccess
+	, 'GET'						// Allowed verb
+	, 'ressourceGet'			// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		)
+	, array						// ACL
+		(array('resource'=>'ressource','right'=>'read')
+		)
+	);

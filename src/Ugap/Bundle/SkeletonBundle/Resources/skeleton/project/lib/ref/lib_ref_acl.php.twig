@@ -1,0 +1,166 @@
+<?php
+/**
+ * Project: UGAP - {{ ucprojectname}}
+ *
+ * Définitions des ressources pour les droits
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ ucprojectname}}-PILOTE
+ * @subpackage REF
+ */
+
+require_once pathFile('hpp_krn_ref.php');
+require_once pathFile('lib_wsx_search.php');
+
+refDefineStorageAPC
+    ('store.apc'					// Nom du Storage
+    );
+
+refDefineStoragePHP
+    ('storage.php.acl'				// Nom du Storage
+    , array()                   	// Paramètres de configuration
+    ,'refStoreAclActive'			// Pour cette fonction applicative
+    );
+
+refDefine
+    ('ref.acl.active'				// Nom du référentiel
+   ,array                           // Liste ordonnée des storages utilisés
+        (refAttachStorage
+            ('store.apc'			// Nom du Storage
+            ,null                   // Fonction de décodage
+            ,60                     // Durée dans le cache en secondes
+            )
+        ,refAttachStorageMaster
+            ('storage.php.acl'    	// Nom du Storage
+            ,null                   // Fonction de décodage
+            )
+        )
+    ,array()                        // Liste des paramètres
+    );
+
+function refStoreAclActive($refName,$params,$ttl,$store) {
+	$MAX_ACL = 99999;
+	$call=array();
+	// Droit
+	$call['droit'] = wsxPrepareOpenSearch
+		('ws.search'				// Ressource
+		, array(HTTP_OK)			// Code retours acceptés
+		, 'acl.droit'				// q
+		, array()					// p
+		, 0							// start
+		, $MAX_ACL					// max
+		, ''						// tri
+		, 'json'					// format
+		);
+	// Ressource
+	$call['ressource'] = wsxPrepareOpenSearch
+		('ws.search'				// Ressource
+		, array(HTTP_OK)			// Code retours acceptés
+		, 'acl.ressource'			// q
+		, array()					// p
+		, 0							// start
+		, $MAX_ACL					// max
+		, ''						// tri
+		, 'json'					// format
+		);
+	// Profil
+	$call['profil'] = wsxPrepareOpenSearch
+		('ws.search'				// Ressource
+		, array(HTTP_OK)			// Code retours acceptés
+		, 'acl.profil'				// q
+		, array()					// p
+		, 0							// start
+		, $MAX_ACL					// max
+		, ''						// tri
+		, 'json'					// format
+		);
+	// Matrix
+	$call['matrix'] = wsxPrepareOpenSearch
+		('ws.search'				// Ressource
+		, array(HTTP_OK)			// Code retours acceptés
+		, 'acl.acl'					// q
+		, array						// p
+			('active' => 'true'
+			)
+		, 0							// start
+		, 2							// max
+		, ''						// tri
+		, 'json'					// format
+		);
+	// Exécution parallélisée
+	$http=wsxExecute($call);
+	// Check Droit
+ 	$droit=json_decode($http['droit']['body'],true);
+ 	if($droit===false){
+ 		aclLogErr('Incorrect JSON droit, cannot decode: %s',$http['droit']['body']);
+ 		return null;
+ 	}
+ 	if(!isset($droit['response']['docs'])){
+ 		aclLogErr('Incorrect JSON droit, no response.docs: %s',$http['droit']['body']);
+ 		return null;
+ 	}
+ 	$droit['ids']=array();
+ 	foreach ($droit['response']['docs'] as $d) {
+ 		$droit['ids'][$d['droit_id']]=$d['label'];
+ 	}
+	// Check Ressource
+ 	$ressource=json_decode($http['ressource']['body'],true);
+ 	if($ressource===false){
+ 		aclLogErr('Incorrect JSON ressource, cannot decode: %s',$http['ressource']['body']);
+ 		return null;
+ 	}
+ 	if(!isset($ressource['response']['docs'])){
+ 		aclLogErr('Incorrect JSON ressource, no response.docs: %s',$http['ressource']['body']);
+ 		return null;
+ 	}
+ 	$ressource['ids']=array();
+ 	foreach ($ressource['response']['docs'] as $r) {
+ 		$ressource['ids'][$r['ressource_id']]=$r['label'];
+ 	}
+	// Check Profil
+ 	$profil=json_decode($http['profil']['body'],true);
+ 	if($profil===false){
+ 		aclLogErr('Incorrect JSON profil, cannot decode: %s',$http['profil']['body']);
+ 		return null;
+ 	}
+ 	if(!isset($profil['response']['docs'])){
+ 		aclLogErr('Incorrect JSON profil, no response.docs: %s',$http['profil']['body']);
+ 		return null;
+ 	}
+ 	$profil['ids']=array();
+ 	foreach ($profil['response']['docs'] as $p) {
+ 		$profil['ids'][$p['profil_id']]=$p['label'];
+ 	}
+ 	// Check Matrix
+ 	$matrix=json_decode($http['matrix']['body'],true);
+ 	if($matrix===false){
+ 		aclLogErr('Incorrect JSON matrix, cannot decode: %s',$http['matrix']['body']);
+ 		return null;
+ 	}
+ 	if(!isset($matrix['response'])){
+ 		aclLogErr('Incorrect JSON matrix, no response: %s',$http['matrix']['body']);
+ 		return null;
+ 	}
+ 	if(!isset($matrix['response']['docs'])){
+ 		aclLogErr('Incorrect JSON matrix, no response.docs: %s',$http['matrix']['body']);
+ 		return null;
+ 	}
+ 	if(count($matrix['response']['docs'])==0){
+ 		aclLogErr('Incorrect JSON matrix, no active matrix: %s',$http['matrix']['body']);
+ 		return null;
+ 	}
+ 	if(count($matrix['response']['docs'])>1){
+ 		aclLogErr('Incorrect JSON matrix, too many active matrix, the first is used: %s',$http['matrix']['body']);
+ 	}
+ 	if(!isset($matrix['response']['docs'][0]['json'])){
+ 		aclLogErr('Incorrect JSON matrix, no response.docs[0].json: %s',$http['matrix']['body']);
+ 		return null;
+ 	}
+ 	return array
+ 		('matrix'		=> $matrix['response']['docs'][0]['json']
+ 		,'droit'		=> $droit['ids']
+ 		,'ressource'	=> $ressource['ids']
+ 		,'profil'		=> $profil['ids']
+ 		);
+}
+

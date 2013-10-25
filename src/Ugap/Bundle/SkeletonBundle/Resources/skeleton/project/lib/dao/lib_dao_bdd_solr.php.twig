@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * @author majdi sfaxi <majdi.sfaxi@capgemini.com>
+ * @package {{ucprojectname}}-SILO-ACL
+ * @subpackage DAO
+ */
+
+
+
+/**
+ * Dépendance sur techno
+ */
+require_once pathFile('lib_dao_require.php');
+require_once pathFile('lib_wsx_solr.php');
+require_once pathFile('lib_guid_solr.php');
+
+/**
+ * Paramétrage de la connexion à la base de données SOLR
+ */
+daoDefineConnectionSolr
+    ('bdd.solr'							// Nom DAO
+    ,'http://anrcp-solr/update'			// Nom WSX Mise à jour
+    ,'http://anrcp-solr/query'			// Nom WSX pour les queries
+    ,'http://anrcp-solr/get'			// Nom WSX pour les GET CRUD
+    );
+

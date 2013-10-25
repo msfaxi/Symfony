@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * Chemin vers le répertoire contenant le kernel
+ */
+define('PATH_KRN'	,dirname(dirname(dirname(dirname(__FILE__)))));
+
+
+/**
+ * Chemin vers le répertoire contenant le projet
+ */
+define('PATH_PROJECT'	,dirname(dirname(__FILE__)));
+
+/**
+ * Chemin vers le répertoire contenant la config de la machine
+ */
+define('PATH_CONFIG'	,PATH_PROJECT.'/config');
+
+/**
+ * Chemin absolu vers les sources du projet
+ */
+define('PATH_silo'		,PATH_PROJECT.'/src');
+
+/**
+ * Chemin absolu vers les sources de la librairie
+ */
+define('PATH_lib'		,dirname(PATH_PROJECT).'/{{projectname}}-lib/src');
+
+/**
+ * Chemin absolu vers les sources de la librairie hpp
+ */
+define('PATH_hpp'		, PATH_KRN.'/kernel/src');
+
+
+/**
+ * Nom de l'instance du projet
+ */
+define('APP_INSTANCE'	,basename(PATH_PROJECT));
+
+/**
+ * La configuration de la plateforme
+ */
+require_once PATH_CONFIG.'/config.php';
+
+/**
+ * Activation du profiling xhprof
+ */
+// if(XPROF_ENABLE==false){
+// 	// No profiling
+// }elseif(strpos($_SERVER['SCRIPT_URL'],'_ajax_')!==false){
+// 	// No profiling on ajax request to don't disturbe json data
+// }else{
+// 	// Only ihm pages are profiled
+// 	require_once PATH_lib.'/util/lib_util_xhprof.php';
+// 	xhprofDefine
+// 		(XPROF_ENABLE					// Enable/Disable profiling
+// 		,'/var/www/html/xhprof_lib'		// xhprof php library directory
+// 		,'/xhprof_html'					// xhprof root uri
+// 		);
+// 	xhprofStart();
+// 	xhprofRegisterShutdown(preg_replace('/[^0-9a-zA-Z]+/','.',$_SERVER['SCRIPT_URL']));
+// }
+
+/*
+ * Set the php error_log
+ */
+ini_set('error_log',DIR_LOGS.'/'.APP_INSTANCE.'.log');
+
+/**
+ * Chargement des outils globaux à l'application
+ */
+require_once PATH_lib.'/util/lib_util_preprocess.php';
+
+/**
+ * Affection du client WSX
+ */
+require_once pathFile('hpp_krn_wsx.php');		
+wsxAttachClient(APP_INSTANCE);
+
+/**
+ * Les paramètres de configuration
+ */
+propertyDefineFile
+	(APP_INSTANCE		            		// Instance
+	,PATH_CONFIG.'/properties.ini' 			// Fichier INI
+	,SECTION_TTL                    		// TTL par défaut
+	);
+

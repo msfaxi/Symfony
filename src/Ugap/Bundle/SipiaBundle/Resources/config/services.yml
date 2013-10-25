@@ -1,0 +1,7 @@
+parameters:
+#    ugap_sipia.example.class: Ugap\Bundle\SipiaBundle\Example
+
+services:
+#    ugap_sipia.example:
+#        class: %ugap_sipia.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

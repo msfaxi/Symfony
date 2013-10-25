@@ -1,0 +1,76 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Login de l'utilisateur
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-PILOTE
+ * @subpackage AJAX
+ */
+
+require_once pathFile('lib_wsx_search.php');
+require_once pathFile('hpp_krn_wsx.php');
+
+function searchCall($query){
+
+	if ( !isset($query) ) {
+		$query 	= array('table'=>'','q'=>'');
+	}
+	if ( !isset($query['table']) ) {
+		$query['table'] = '';
+	}
+	if ( !isset($query['q']) ) {
+		$query['q'] = '';
+	}
+	if ( !isset($query['p']) ) {
+		$query['p'] = '';
+	}
+	if ( !isset($query['start']) ) {
+		$query['start'] = 1;
+	}
+	if ( !isset($query['max']) ) {
+		$query['max'] = 10;
+	}
+	$query['p']['table']=$query['table'];
+
+	// TODO à continuer ...
+	switch($query['table']){
+		case 'user':						// Utilisateurs
+		case 'profil':						// Profils d'ACL
+		case 'droit':						// Droits d'ACL
+		case 'ressource':					// Ressources d'ACL
+		case 'acl':							// ACL
+		case '':							// Tous les types de document
+			$http = wsxExecuteOpenSearch
+				('ws.search'				// Ressource
+				, array(HTTP_OK)			// Code retours acceptés
+				, $query['q']				// q
+				, $query['p']				// p
+				, $query['start']			// start
+				, $query['max']				// max
+				, 'score desc'				// tri
+				, 'json'					// format
+				);
+			break;
+/*		case 'user':						// Utilisateurs
+			$http = wsxExecuteOpenSearch
+				('ws.user'					// Ressource
+				, array(HTTP_OK)			// Code retours acceptés
+				, $query['q']				// q
+				, $query['p']				// p
+				, $query['start']			// start
+				, $query['max']				// max
+				, 'score desc'				// tri
+				, 'json'					// format
+				);
+	
+			break;
+*/		default:
+			throw new Exception('Pilote search, table not found: '+var_export($query['table'],true),HTTP_NOTFOUND);
+			break;
+	}
+	echo $http['body'];
+}
+

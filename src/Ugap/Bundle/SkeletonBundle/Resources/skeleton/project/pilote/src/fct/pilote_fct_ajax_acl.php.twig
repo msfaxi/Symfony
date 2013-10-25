@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Ressource acl
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('lib_wsx_acl.php');
+
+
+function aclAdd($json){
+	$http = wsxExecutePOST
+		('ws.acl'				// Ressource
+		, array(HTTP_CREATED)	// Code retours acceptés
+		,json_encode
+			($json
+			)
+		, array
+			(
+			)
+		);
+	echo $http['body'];
+}
+
+function aclPut($id,$json){
+	$http = wsxExecutePUT
+		('ws.acl.id'
+		, array(HTTP_OK)
+		, json_encode($json)
+		, array('id' => $json['id'])
+		);	
+	echo $http['body'];
+}
+
+function aclDelete($id){
+	$http = wsxExecuteDELETE
+		('ws.acl.id'
+		, array(HTTP_OK)
+		, array('id' => $id)
+		);
+	echo $http['body'];
+}
+
+/**
+ * Recherche d'un acl par son identifiant
+ *
+ * @param string $id  Identifiant de l'acl
+ * @return string     ACL sous forme JSON
+ */
+function aclGet($id) {
+    static $aclCache=array();
+    // Utiliser les données de cache dans une même exécution de script
+    if(isset($aclCache[$id])){
+    	echo $aclCache[$id];
+    }
+	$http = wsxExecuteGET
+		('ws.acl.id'
+		, array(HTTP_OK)
+		, array('id' => $id)
+		);	
+	echo $http['body'];
+}
+
+

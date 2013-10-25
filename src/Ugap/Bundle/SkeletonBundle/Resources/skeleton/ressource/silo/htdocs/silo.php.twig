@@ -1,0 +1,30 @@
+<?php
+/**
+ * Project: UGAP - {{ ucprojectname }}
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ ucprojectname }}-SILO
+ * @subpackage HTDOCS
+ */
+/*
+ * Clear controller parameter
+*/
+unset($_GET['_htdocs']);
+unset($_REQUEST['_htdocs']);
+
+/**
+ * Configuration des services du silo
+ */
+//restful required 
+require pathFile('silo_restful_search.php');
+require pathFile('silo_restful_user.php');
+require pathFile('silo_restful_acl.php');
+require pathFile('silo_restful_profil.php');
+require pathFile('silo_restful_droit.php');
+require pathFile('silo_restful_ressource.php');
+
+/**
+ * Exécution des traitements REST
+ */
+restfulExecute();
+

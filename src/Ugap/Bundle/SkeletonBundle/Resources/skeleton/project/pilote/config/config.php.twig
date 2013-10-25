@@ -1,0 +1,40 @@
+<?php
+/**
+ * IMPORTANT:
+ * Ce fichier est le seul fichier modifiable pour une adaptation
+ * de la configuration à une plateforme (dev, recette, prod, ...)
+ * 
+ * Pour simplification, la configuration au niveau plateforme
+ * est factorisée pour tous les pilotes et silos.
+ */
+
+/**
+ * Répertoire de configuration générale
+ */
+define('PATH_CONFIG_ROOT',dirname(dirname(dirname(__FILE__))).'/config');
+
+/**
+ * Le fichier de configuration pour la plateforme
+ * 
+ * A partir de:
+ * 		/path/to/{{ projectname }}-XXX/config/config.php
+ * Vers:
+ * 		/path/to/config/platform.php
+ */
+require PATH_CONFIG_ROOT.'/platform.php';
+
+/**
+ * Répertoire racine des logs
+ */
+define('DIR_LOGS',ROOT_LOGS);
+
+/**
+ * Répertoire racine des données générées par l'application sur le système de fichiers
+ */
+define('DIR_DATA',ROOT_DATA);
+
+/**
+ * Profiling XHPROF
+ */
+const XPROF_ENABLE = false;
+

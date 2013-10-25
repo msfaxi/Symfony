@@ -1,0 +1,34 @@
+
+; Project: La Poste - Gestri
+; @version $Id$
+
+; ==================================================================
+[CONSTANT]
+; Section des constantes de définition héritable via les dépendances
+; ==================================================================
+
+; Rien pour l'instant
+
+
+; ==================================================================
+[http.cause]
+; Liste des causes de réception de chaque code http
+; ==================================================================
+section.ttl = SECTION_TTL
+
+; Cas particulier lorsqu'aucune constante n'est définie
+HTTP_UNSET					= "Erreur sur code http $httpCode (non prévu par l'application, à définir dans la configuration INI)"
+
+; Liste des correspondances entre le code HTTP et son texte explicatif
+HTTP_NOTFOUND 				= "La ressource demandée n'est pas trouvée"
+HTTP_INTERNALSERVERERROR	= "Une erreur interne s'est produite"
+HTTP_NOTAVAILABLE			= "Le serveur est momentanément incapable de répondre correctement"
+HTTP_PARTIALCONTENT			= "La ressource retournée est présente mais incomplète"
+HTTP_NOTMODIFIED			= "La ressource n'a pas pu être modifiée"
+HTTP_BADREQUEST				= "La requête est mal formée"
+HTTP_CONNECTFAILED			= "La connexion n'a pas pu être établie avec le serveur"
+HTTP_NOTALLOWED 			= "La requête à échouée"
+HTTP_CONTINUE				= "Erreur interne au serveur d'export"
+HTTP_UNAUTHORIZED           = "La ressource est soumise à authentification"
+HTTP_NOTIMPLEMENTED         = "Le service demandé n'est pas défini"
+

@@ -1,0 +1,94 @@
+<?php
+/**
+ * Accès au serveur SOLR pour la ressource search
+ *
+ * @author majdi sfaxi 
+ * @package {{ucprojectname}}-LIB
+ * @subpackage SOLR
+ * @version $Id
+ */
+
+/**
+ * Dépendance technique
+ */
+require_once pathFile('hpp_krn_solr.php');
+require_once pathFile('lib_wsx_solr.php');
+
+// TODO Voir pour faire sauter cette définition maintenant redondante
+solrDefineServer
+    ('http://{{projectname}}-solr/select'        		// Nom donné au serveur de recherche
+    ,'http://{{projectname}}-solr/select'   			// Uri WSX de recherche dans l'index
+    );
+
+/**
+ * Requête de recherche fulltext
+ * utilisée par l'écran de recherche simple
+ */
+solrDefineRequest
+	('solr.search.form'
+	,'http://{{projectname}}-solr/select'
+	,solrQueryAND
+    	(solrQueryField
+    		('text:$fulltext'
+    		,array
+            	(solrQueryCondition('fulltext','ruleIsNotEmpty')
+                )
+    		)
+		,solrQueryField			// Cas où rien n'est envoyé
+    		('*'
+    		,array
+            	(solrQueryCondition('fulltext','ruleIsEmpty')
+                )
+    		)
+		,solrQueryField
+			('-table:(profil droit ressource acl)'				// Tables interdites au query
+    		)
+    	,solrQueryField
+			('table:$table'
+			,array
+				(solrQueryCondition('table','ruleIsNotEmpty')
+	            )
+	    	)
+    	,solrQueryField
+    		('id:$id'
+    		,array
+            	(solrQueryCondition('id','ruleIsNotEmpty')
+                )
+    		)
+    	,solrQueryField
+    		('login:$login'
+    		,array
+            	(solrQueryCondition('login','ruleIsNotEmpty')
+                )
+    		)
+    	,solrQueryField
+    		('email:$email'
+    		,array
+            	(solrQueryCondition('email','ruleIsNotEmpty')
+                )
+    		)
+    	,solrQueryField
+    		('nom:$nom'
+    		,array
+            	(solrQueryCondition('nom','ruleIsNotEmpty')
+                )
+    		)
+    	,solrQueryField
+    		('prenom:$prenom'
+    		,array
+            	(solrQueryCondition('prenom','ruleIsNotEmpty')
+                )
+    		)
+    	)  // Fin du AND
+	,array
+		(solrParamOptional('fulltext'	,''		,'solrParserFulltext')
+		,solrParamOptional('table'   	,''		,'solrParserScalar')
+		,solrParamOptional('id'   		,'' 	,'solrParserScalar')
+		,solrParamOptional('login' 		,'' 	,'solrParserScalar') // user
+		,solrParamOptional('email'  	,'' 	,'solrParserScalar') // user
+		,solrParamOptional('nom'   		,'' 	,'solrParserScalar') // user
+		,solrParamOptional('prenom' 	,'' 	,'solrParserScalar') // user
+		,solrParamOptional('profil'		,'' 	,'solrParserScalar') // user // TODO à voir pour recherche des users par profil
+		)
+	);
+

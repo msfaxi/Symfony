@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Services REST de la recherche transverse
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-SILO-SEARCH
+ * @subpackage RESTFUL
+ * @filesource
+ */
+
+/**
+ * Recherche Open Search
+ * @param String $q			Le query à exécuter
+ * @param String $p			Les paramètres à passer au query
+ * @param Integer $start	Le premier enregistrement à retourner
+ * @param Integer $max		Le nombre d'enregistrement dans la page
+ * @param String $sort		Le paramètre de tri
+ * @param String $format	Le format de la réponse attendu, xml|json
+ */
+
+require_once pathFile('lib_solr_search.php');
+require_once pathFile('lib_solr_acl.php');
+require_once pathFile('lib_dao_acl.php');
+
+
+function siloSearchRestOpenSearch($q,$p,$start,$max,$sort,$format){
+	restfulLogDebug('siloSearchRestOpenSearch: %s',var_export(func_get_args(),true));
+	// Vérifier la demande
+	switch($q){
+ 		// Exemple
+		case 'acl.profil':
+		case 'acl.droit':
+		case 'acl.ressource':
+		case 'acl.acl':
+			siloSearch_OpenSearch($q,$p,$start,$max,$sort,'json');
+			break;
+		default:
+			throw new Exception
+				('q does not exists: '.var_export($q,true)
+				,HTTP_NOTIMPLEMENTED
+				);
+			break;
+	}
+}
+
+function siloSearch_OpenSearch($q,$p,$start,$max,$sort,$format){
+	$qry = solrExecute
+		( 'solr.'.$q				// Filtrage pour limiter les requêtes possibles
+		, $p
+		, $start					// $resultLimitFrom
+		, $max						// $resultLimitFor
+		, $format					// $format
+		, $sort						// $sort
+		);
+	daoLogErr('OPENSEARCH %s',$qry['body'],true);
+	// Reconstruire les LOB en json
+	$solr=json_decode($qry['body'],true);
+	$isLob=false;
+	foreach ($solr['response']['docs'] as $k=>$v) {
+		if (isset($v['table'])) {
+			switch($v['table']) {
+				// Ajouter ici les tables qui contiennent un LOB
+				case 'acl':
+					$solr['response']['docs'][$k]['json']=json_decode($solr['response']['docs'][$k]['json'],true);
+					$isLob=true;
+					break;
+			}
+		}
+		// Bug SPEC ECMAScript int = 2^53 au maximum, et la version SOLR dépasse
+		$solr['response']['docs'][$k]['_version_'] = (string)$solr['response']['docs'][$k]['_version_'];
+	}
+	if ($isLob) {
+		echo json_encode($solr);
+	} else {
+		echo $qry['body'];
+	}
+}

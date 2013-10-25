@@ -1,0 +1,120 @@
+<?php
+
+/**
+ * Project: UGAP - {{ ucprojectname}}
+ * 
+ * Contient les fonctions et les fichiers à charger au démarrage de l'application.
+ *
+ * @package {{ ucprojectname}}-LIB
+ * @subpackage UTIL
+ */
+
+date_default_timezone_set('Europe/Paris');
+
+/**
+ * Outil de gestion des propriétés
+ */
+require_once pathFile('hpp_krn_property.php');
+
+/**
+ * Utilisation du cache APC par défaut
+ */
+propertySet('cache://defaultCacheType','APC');
+
+/**
+ * Outil de gestion des fichiers de log
+ */
+require_once pathFile('lib_util_logfile.php');
+
+/**
+ * Gestion des codes HTTP
+ */
+require_once pathFile('hpp_krn_http.php');
+
+// /**
+//  * Gestion des dates
+//  */
+// require_once pathFile('hpp_krn_date.php');
+
+/**
+ * PATCH for Apache Rewrite, sometime this variable is not set 
+ */
+if(isset($_SERVER['SCRIPT_URI'])){
+	// Ok
+}elseif(php_sapi_name()=='cli'){
+	// Ok
+}elseif(strpos($_SERVER['REQUEST_URI'],'?')===false){
+	$_SERVER['SCRIPT_URI']=sprintf
+		('%s://%s%s'
+		,isset($_SERVER['HTTPS'])?'https':'http'
+		,$_SERVER['HTTP_HOST']
+		,$_SERVER['REQUEST_URI']
+		);
+}else{
+	$_SERVER['SCRIPT_URI']=sprintf
+		('%s://%s%s'
+		,isset($_SERVER['HTTPS'])?'https':'http'
+		,$_SERVER['HTTP_HOST']
+		,substr($_SERVER['REQUEST_URI'],0,strpos($_SERVER['REQUEST_URI'],'?'))
+		);
+}
+
+/**
+ * Construction du chemin complet vers un fichier
+ * 
+ * Si le fichier contient un path absolu celui-ci est retourné.
+ * Sinon le chemin est construit avec ou sans le sous-répertoire.
+ *
+ * @param String $file   Nom du fichier (sans aucun chemin)
+ * @param String $subdir Chemin relatif vers le sous-répertoire contenant le fichier
+ * @return String        Chemin complet
+ */
+function pathFile($file,$subdir=''){
+	sscanf
+	   ($file                      // Nom du fichier
+	   ,'%[^_]_%[^_]_'             // Format du prefixe
+	   ,$projet                    // Code du projet
+	   ,$techno                    // Code de la techno
+	   );
+	if($file{0}=='/'){     // Unix
+		return $file;
+	}elseif($file{1}==':'){// Windows
+        return $file;
+	}elseif($subdir==''){
+    	return constant('PATH_'.$projet).'/'.$techno.'/'.$file;
+	}else{
+		return constant('PATH_'.$projet).'/'.$techno.'/'.$subdir.'/'.$file;
+	}
+}
+
+/**
+ * Permet de contrer les attaques de type Cross-Site Request Forgeries
+ * 
+ * Cette fonction est à appeler dans le fichier indiqué dans la directive auto_prepend_file
+ * de la configuration php des pilotes IHM.
+ */
+function csrfVerify() {
+    // Seulement les POST altèrent les données
+    if(!isset($_POST)) {
+        // La requête peut être exécutée sans contrôle
+		return;
+    }
+    // La requête ne provient pas du serveur applicatif
+    if(!isset($_SERVER['HTTP_REFERER'])){
+    	// Demande faite de l'extérieur de l'application
+    	// Ce qui est par défaut interdit
+        httpSendCodeHTTP(HTTP_FORBIDDEN);
+        echo 'Accès direct par POST interdit hors applicatif';
+        exit();
+    }
+    $uri=parse_url($_SERVER['HTTP_REFERER'],PHP_URL_HOST);
+    // La requête ne provient pas du serveur applicatif    	
+    if($uri['host']!==$_SERVER['HTTP_HOST']){
+        httpSendCodeHTTP(HTTP_FORBIDDEN);
+        exit();
+    }
+    // La requête peut être exécutée
+}
+
+// csrfVerify();
+

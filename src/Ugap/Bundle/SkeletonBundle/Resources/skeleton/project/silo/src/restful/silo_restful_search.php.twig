@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * Project: UGAP- {{ucprojectname}}
+ *
+ * Services REST de la ressource {{ucprojectname}}
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-SILO-SEARCH
+ * @subpackage RESTFUL
+ * @version $Id$
+ */
+
+require_once pathFile('hpp_krn_restful.php');
+require_once pathFile('lib_wsx_search.php');
+
+/**
+ * Dépendances sur les fonctions rest applicatives pour la ressource
+ */
+require_once pathFile('silo_fct_restful_search.php');
+
+/**
+ * Définitions des services REST sur la recherche transverse
+ */
+
+restfulDefine
+	('ws.search'
+	,array
+		(restfulDefineOpenSearch
+		    ('siloSearchRestOpenSearch'
+		    ,array
+		    	('{{projectname}}-pilote'
+		    	)
+		    )
+		)
+	);

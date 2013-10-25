@@ -1,0 +1,29 @@
+<?php
+/**
+ * Project: UGAP - {{ ucprojectname}}
+ *
+ * Définitions des associations pour les droits
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ ucprojectname}}-LIB
+ * @subpackage ACL
+ */
+
+require_once pathFile('hpp_krn_acl.php');
+require_once pathFile('lib_acl_profils.php');
+require_once pathFile('lib_acl_ressources.php');
+require_once pathFile('lib_acl_droits.php');
+require_once pathFile('lib_ref_acl.php');		// for aclDefineAclFromSolr()
+
+aclDefineAssocRessource
+	( 'application'
+	, aclAccessP('sysadmin'			, 'read'   , ACL_ALLOW)
+	);
+
+/**
+ * Chargement de la matrice active définie dans SOLR
+ */
+aclDefineAclFromSolr
+	('ref.acl.active'				// Référentiel où retrouver la matrice d'accès
+	);
+

@@ -1,0 +1,76 @@
+
+; Project: UGAP - {{ ucprojectname}}
+; @version $Id
+; @package {{ ucprojectname}}-INSTALL
+
+; ==================================================================
+[CONSTANT]
+; ==================================================================
+
+
+; ==================================================================
+[DEPENDENCY]
+; ==================================================================
+; Dépendances envers d'autres fichiers INI
+
+; Le fichier de définition de l'application
+section.dependency[] = ROOT_CONFIG "/{{ projectname}}.ini"
+
+
+; ==================================================================
+[uri]
+; ==================================================================
+
+; ------------------------------------------------------------------
+; URI IHM
+; ------------------------------------------------------------------
+
+; Adresse de la page d'accueil de l'application
+{{ projectname}}.ihm.home = "https://" {{ ucprojectname}}_HOST_IHM "/{{ projectname}}/{{ projectname}}-ihm/www/"
+
+; Demande de changement de mot de passe
+{{ projectname}}.pilote.reset.password = "http://" {{ ucprojectname}}_HOST_PILOTE "/{{ projectname}}/{{ ucprojectname}}-ihm/www/#/auth/init/$keypass"
+
+; ------------------------------------------------------------------
+; URI PILOTE
+; ------------------------------------------------------------------
+
+
+; ------------------------------------------------------------------
+; URI SILO
+; ------------------------------------------------------------------
+
+
+; Recherche transverse
+ws.search       = "http://"{{ ucprojectname}}_HOST_SILO "/{{ projectname}}/silo/search"
+
+
+; Ressource acl.profil
+ws.acl.profil       = "http://"{{ ucprojectname}}_HOST_SILO "/{{ projectname}}/silo/acl/profil"
+ws.acl.profil.id    = "http://"{{ ucprojectname}}_HOST_SILO "/{{ projectname}}/silo/acl/profil/$id"
+
+; Ressource acl.droit
+ws.acl.droit        = "http://{{ ucprojectname}}/{{ projectname}}/silo/acl/droit"
+ws.acl.droit.id     = "http://"{{ ucprojectname}}_HOST_SILO "/{{ projectname}}/silo/acl/droit/$id"
+
+; Ressource acl.ressource
+ws.acl.ressource    = "http://"{{ ucprojectname}}_HOST_SILO "/{{ projectname}}/silo/acl/ressource"
+ws.acl.ressource.id = "http://"{{ ucprojectname}}_HOST_SILO "/{{ projectname}}/silo/acl/ressource/$id"
+
+; Ressource acl
+ws.acl          = "http://"{{ ucprojectname}}_HOST_SILO "/{{ projectname}}/silo/acl/acl"
+ws.acl.id       = "http://"{{ ucprojectname}}_HOST_SILO "/{{ projectname}}/silo/acl/acl/$id"
+
+
+; ------------------------------------------------------------------
+; URI SOLR
+; ------------------------------------------------------------------
+
+; Solr request Uri
+{{ projectname}}.solr.select = "http://" {{ ucprojectname}}_HOST_SOLR ":8080/{{ projectname}}-solr/collection1/select"
+
+; Solr index Uri
+{{ projectname}}.solr.update = "http://" {{ ucprojectname}}_HOST_SOLR ":8080/{{ projectname}}-solr/collection1/update"
+
+; Solr CRUD Uri
+{{ projectname}}.solr.get = "http://" {{ ucprojectname}}_HOST_SOLR ":8080/{{ projectname}}-solr/collection1/get"

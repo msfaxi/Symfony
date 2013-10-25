@@ -1,0 +1,182 @@
+<?php
+/**
+ * Project: La Poste - Engagement Client
+ * 
+ * Fichier d'amorce d'une action d'un script
+ * 
+ * L'appel d'une commande en mode ligne se fait par le shell ec_admin.sh
+ * La syntaxe d'appel est la suivante: ec_admin.sh script hello start
+ * 
+ * L'appel de l'action start sera effectué sur le script hello
+ * se trouvant dans le fichier EngagementClient-BATCH/script/script_hello.php
+ * 
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com> 
+ * @version $Id: cli_admin_batch.php 3588 2011-12-10 00:04:34Z jarneodo $
+ * @package SITRI-LIB
+ */
+
+/**
+ * Dépendance technique BATCH
+ */
+//require_once pathFile('hpp_krn_batch.php');
+
+/**
+ * Affichage en mode CLI des actions d'un script
+ *
+ * @param String $script
+ * @param String $action
+ * @return Integer  Le status d'exécution au format Unix (0 = ok)
+ */
+function batchRunInfo($script,$action){
+    $actions=batchDefinitionMethod
+        (BATCH_GET_ACTIONS
+        ,$script
+        ,$action
+        );
+    echo "\n";
+    echo "Actions possibles:\n";
+    foreach($actions as $a=>$t){
+        echo "\n* $a\n\t$t\n";
+        $fct=batchDefinitionMethod
+	        (BATCH_GET_USERFUNC
+	        ,$script
+	        ,$a
+	        );
+	    $i=1;
+        foreach($fct['params'] as $p){
+            $name =$p['name'];
+        	$title=$p['title'];
+            $type1 =$p['required']?'':'='.$p['default'];
+            $type2 =$p['required']?'Required. ':'';
+            echo "\tParam $i [$name$type1]\t: $type2$title\n";
+        	$i++;
+        }
+    }
+    return BATCH_STATUS_OK;
+}
+
+function batchRunLogfile($logLevel=null){
+	$levels=array
+		('EMERG' 	=> LOG_EMERG
+		,'ALERT'	=> LOG_ALERT
+		,'CRIT' 	=> LOG_CRIT
+		,'ERR' 		=> LOG_ERR
+		,'WARNING' 	=> LOG_WARNING
+		,'NOTICE' 	=> LOG_NOTICE
+		,'INFO' 	=> LOG_INFO
+		,'DEBUG' 	=> LOG_DEBUG
+		);
+	if($logLevel===null){
+		$levels=array_flip($levels);
+	}else{
+		batchLogNotice('Logfile level is forced to %s',$logLevel);
+	}
+	$logfiles=propertyGet('logfile://logfile');
+	sort($logfiles);
+	foreach($logfiles as $fromLogType){
+		$techno=strToLower($fromLogType);
+		if($logLevel===null){
+		   	echo sprintf
+		   		("%-10s %-10s %s\n"
+		   		,$fromLogType
+		   		,$levels[propertyGet('logfile://'.$techno.'.level')]
+		   		,propertyGet('logfile://'.$techno.'.log')
+		   		);
+		}elseif(!isset($levels[$logLevel])){
+			batchLogWarning('Logfile level %s not found in %s',$logLevel,implode(',',array_keys($levels)));
+			break;
+		}else{
+			// Change log file level to required level for the current script only
+			propertySet('logfile://'.$techno.'.level',$levels[$logLevel]);
+		}
+	}
+	return BATCH_STATUS_OK;
+}
+
+/*
+ * Exécution du script
+ */
+
+$file=$argv[1];
+$preprocess=$argv[2];
+$script=$argv[3];
+$action=@$argv[4];
+$params=array_slice($argv,5);
+
+date_default_timezone_set('Europe/Paris');
+
+// Chargement du fichier de preprocess
+require_once($preprocess);
+
+// Chargement du fichier batch
+require_once($file);
+
+// Redirection des logs des batchs vers leur fichier de log spécifique
+logfileRedirect('BATCH');
+
+// Cas particulier de réflexion des actions
+if($action=='info' || $action==''){
+    $action='info';
+    batchDefine
+    	($script
+        ,$action
+        ,'batchRunInfo'
+        ,'Liste des actions de ce script'
+        ,array
+            (batchAttachParameter
+                ('script'
+                ,'Nom de la ressource batch'
+                ,true
+                ,null
+                )
+            ,batchAttachParameter
+                ('action'
+                ,'Action à effectuer'
+                ,true
+                ,null
+                )
+            )
+        );
+    $params=array($script,$action);
+}
+
+batchDefine
+	($script
+	,'logfile'
+    ,'batchRunLogfile'
+    ,'Liste des paramétrages de LOG'
+    ,array()
+    );
+
+/**
+ * Modification du niveau de log par défaut
+ */
+if(($logLevel=getenv('CLI_LOGLEVEL'))!==false){
+	batchRunLogfile($logLevel);
+}
+
+/**
+ * Activation du profiling xhprof
+ */
+if(getenv('CLI_XHPROF')==1){
+	require_once pathFile('lib_util_xhprof.php');
+	xhprofDefine
+		(true							// Enable/Disable profiling
+		,'/var/www/html/xhprof_lib'		// xhprof php library directory
+		,'/xhprof_html'					// xhprof root uri
+		);
+	xhprofStart();
+	batchLogNotice('Starting profiling with XHPROF');
+}
+
+// Exécution du traitement demandé
+$rc=batchRun($script,$action,$params);
+
+if(getenv('CLI_XHPROF')==1){
+	batchLogNotice('XHPROF data are dumped');
+	xhprofStop(basename($file,'.php').'.'.$action);
+}
+
+// Rapport d'exécution
+exit($rc);
+

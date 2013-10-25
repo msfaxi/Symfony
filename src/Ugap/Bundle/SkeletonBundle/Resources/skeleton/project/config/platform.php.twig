@@ -1,0 +1,86 @@
+<?php
+/**
+ * IMPORTANT:
+ * Ce fichier est le seul fichier modifiable pour une adaptation
+ * de la configuration à une plateforme (dev, recette, prod, ...)
+ * si l'installation se fait manuellement.
+ * 
+ * Dans le cas d'une installation automatisée,
+ * le fichier config.php du projet, pilote ou silo doit être suffisant.
+ */
+
+/*
+ * Les FQDN des machines utilisées par le module
+ */
+const {{ ucprojectname }}_HOST_IHM      = 'vm';
+const {{ ucprojectname }}_HOST_PILOTE   = 'vm';
+const {{ ucprojectname }}_HOST_SILO     = 'vm';
+const {{ ucprojectname }}_HOST_SOLR     = 'vm';
+
+
+/**
+ * Numero de la version de l'application
+ */
+const APP_VERSION = '{{ projectname }} v0.0.1';
+
+/**
+ * Comportement du système de logfile
+ *
+ *	syslog	: les traces sont envoyées dans le syslog même si un fichier de trace est déclaré.
+ *  file	: les traces sont envoyées dans le fichier de trace déclaré.
+ *  all		: les traces sont envoyées dans le syslog et le fichier de trace déclaré.
+ *  none	: aucune trace n'est envoyée, ni dans un fichier, ni dans le syslog.
+ */
+const LOGFILE_MODE = 'file';
+
+/**
+ * Niveau de trace indiquant le niveau minimum pour envoyer les messages dans les logs
+ *
+ * La valeur est au format syslog, voir {@link http://www.php.net/manual/en/function.syslog.php}.
+ * 	LOG_EMERG   = 0    system is unusable
+ * 	LOG_ALERT   = 1    action must be taken immediately
+ * 	LOG_CRIT    = 2    critical conditions
+ * 	LOG_ERR     = 3    error conditions
+ *  LOG_WARNING = 4    warning conditions
+ *  LOG_NOTICE  = 5    normal, but significant, condition
+ *  LOG_INFO    = 6    informational message
+ *  LOG_DEBUG   = 7    debug-level message
+ *
+ * Classiquement:
+ *  LOG_DEBUG	En développement
+ *  LOG_NOTICE	En production
+*/
+const LOGFILE_LEVEL = LOG_DEBUG;
+
+/**
+ * Répertoire racine de la configuration au niveau plateforme
+ */
+define('ROOT_CONFIG',dirname(__FILE__));
+
+/**
+ * Répertoire racine des logs
+ */
+const ROOT_LOGS = '/logs/{{ projectname }}';
+
+/**
+ * Répertoire racine des données générées par l'application sur le système de fichiers
+ */
+const ROOT_DATA = '/data/{{ projectname }}';
+
+/**
+ * Durée de vie des propriétés dans le cache APC, en secondes
+ *
+ * En développement, le TTL doit être bref pour éviter de vider le cache après chaque modification.
+ * En production, les fichiers INI sont figés, utiliser une valeur de même ordre de grandeur que les mises à jour puppet.
+ * 
+ * Valeurs conseillées:
+ * 	60   en développement
+ *  3600 en production
+ */
+const SECTION_TTL = 60;
+
+/**
+ * Préfixe des variables de la valve Apache/Perl de controle du SP/IDP
+ */
+const IDP_VAR_PREFIX     = 'AC_ATTR_';
+

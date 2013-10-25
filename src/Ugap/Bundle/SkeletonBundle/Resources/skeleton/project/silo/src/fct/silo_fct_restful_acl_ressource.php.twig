@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Services REST de la ressource "ressource" du silo ACL
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-SILO-ACL
+ * @subpackage RESTFUL
+ * @filesource
+ */
+
+require_once pathFile('hpp_krn_date.php');
+require_once pathFile('hpp_krn_guid.php');
+require_once pathFile('lib_dao_acl_ressource.php');
+
+function siloAclRessourceRestGET($id,$format){
+	if($format!=='json'){
+		throw new Exception
+			('Format '.$format.' not found, expected formats: json only'
+			,HTTP_NOTIMPLEMENTED
+			);
+	}
+
+	$qry=daoSelect
+		( 'ressource'
+		, array
+			( 'table'
+			, 'id'
+			, '_version_'
+			, 'ressource_id'
+			, 'label'
+			)
+		, 'id = :id'
+		, array
+			( ':id' => $id
+			)
+		);
+	$ressource = daoFetchAll($qry);
+	// Un seul résultat attendu
+	if(count($ressource)<>1){
+		throw new Exception
+			('Accès à l\'utilisateur '.var_export($id,true)
+			,HTTP_INTERNALSERVERERROR
+			);
+	}
+	// Envoi du résultat
+	httpSendCodeHTTP(HTTP_OK,array('Content-type: text/json'));
+	echo json_encode($ressource[0]);
+}
+
+function siloAclRessourceRestPost($json,$id){
+	if(!isset($json['table'])){
+		throw new Exception('Field "table" MUST BE set to "ressource", field not found',HTTP_BADREQUEST);
+	}
+	if($json['table']<>'ressource'){
+		throw new Exception('Field table MUST BE ressource, found: '.var_export($json['table'],true),HTTP_BADREQUEST);
+	}
+	$result = daoInsert
+		( 'ressource'
+		, array
+			( 'table'		=> 'ressource'
+			, 'id' 			=> $id
+			, 'ressource_id'=> $json['ressource_id']
+			, 'label' 		=> $json['label']
+//			, 'acl'			=> $json['acl']		// Contrôle d'accès à la ressource "ressource"
+			)
+		);
+	httpSendCodeHTTP(HTTP_CREATED,array('Content-type: text/json'));
+	echo  json_encode(array('id'=>$id,'_version_'=>'1'));
+}
+
+function siloAclRessourceRestPUT($id,$json,$etag){
+	$result = daoUpdate
+		( 'ressource'
+		, array
+			( 'id' => $id
+			,'_version_' => $etag
+			)
+		, array
+			( 'id' 			=> $id
+			, 'ressource_id'=> $json['ressource_id']
+			, 'label' 		=> $json['label']
+			)
+		);
+	
+	if ($result > 0) {
+		$json['_version_'] = $etagNew;
+		echo  json_encode($json);
+	} else {
+		throw new Exception
+			('Doc ressource: id='.$id.' _version_='.$etagNew 
+				,HTTP_CONFLICT
+			);
+	}
+}
+
+function siloAclRessourceRestDELETE($id){
+	daoDelete
+		( 'ressource'
+		, array('id' => $id)
+		);
+	httpSendCodeHTTP(HTTP_OK,array('Content-type: text/json'));
+	echo json_encode("ok");
+}

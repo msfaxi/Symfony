@@ -1,0 +1,130 @@
+#!/bin/bash
+
+# Options de paramétrage PHP
+# Options surchargées:
+#   -d include_path=$CLI_INCLUDE_PATH
+#   -d error_log=$CLI_LOG_FILE
+PHP_INI_OPTIONS="-d xcache.cacher=Off -d memory_limit=-1  -d log_errors=On -d error_reporting=2147483647 -d display_startup_errors=On -d display_errors=On"
+
+batchHelp() {
+    case "$1" in
+    help)
+        echo "Usage:"
+        echo " $CLI_CMD batch list"
+        echo "      Liste des batches disponibles"
+        echo " $CLI_CMD batch start {NomCourtAppli} {NomCourtDuScript} {action} [-n|--nolog]"
+        echo "      Lancement du batch"
+        echo " $CLI_CMD batch info {NomCourtAppli} {NomCourtDuScript} [-v|--verbose]"
+        echo "      Aide sur les actions du batch"
+        echo " $CLI_CMD batch [help]"
+        echo "      Affichage de l'aide"
+        echo "Options:"
+        echo "      -l \$level|--loglevel \$level Set the logfile level with one of DEBUG,INFO,NOTICE,WARNING,ERR,CRIT,ALERT,EMERG"
+        ;;
+    bug|*)
+        echo "Erreur:"
+        [ ! -z "$2" ] && echo "   $2"
+        [ ! -z "$3" ] && echo "   $3"
+        batchHelp "help"
+        ;;
+    esac
+    exit 1
+}
+
+batchList(){
+    for p in ${projects[@]}
+    do
+        local path=$(var project $p projdir)
+        local preprocess=$(var project $p preprocess)
+        [ ! -d "$path/src/batch" ] && continue
+        for f in $path/src/batch/${p}_batch_*.php
+        do
+            local name=`basename $f .php`
+            echo "$f $p ${name/${p}_batch_/}"
+        done
+    done
+    exit 0
+}
+
+batchStart(){
+    [ -z "$1" ] && batchHelp "bug" "Préciser l'application et le nom du batch"
+    [ -z "$2" ] && batchHelp "bug" "Aucun batch demandé"
+    local appli_name="$1"
+    shift # appli_name
+    local batch_name="$1"
+    shift # batch_name
+    local action="$1"
+    shift # action
+    local batch_file="$(var project $appli_name projdir)/src/batch/${appli_name}_batch_${batch_name}.php"
+    local batch_preprocess=$(var project $appli_name preprocess)
+    [ "$CLI_NOLOG" = "0" ] && CLI_LOG_FILE="$CLI_LOG/$CLI_DATE/${appli_name}.${batch_name}.${action}.${CLI_TIME}.$$.batch.log"
+    [ "$CLI_NOLOG" = "1" ] && CLI_LOG_FILE=/dev/null
+    [ ! -f "$batch_file" ] && batchHelp "bug" "Le fichier [$batch_file] n'existe pas"
+    [ "$CLI_NOLOG" = "0" ] && mkdir --parents $(dirname $CLI_LOG_FILE)
+    CLI_PHP_BATCH="$CLI_DIR/cli_admin_batch.php"
+    [ ! -f "$CLI_PHP_BATCH" ] && batchHelp "bug" "Le fichier [$CLI_PHP_BATCH] n'existe pas"
+    local cmd="php $PHP_INI_OPTIONS -d error_log=$CLI_LOG_FILE $CLI_PHP_BATCH $batch_file $batch_preprocess $batch_name $action $*"
+    local title="DEBUT batchRun('$appli_name','$batch_name','$action',params='$*')"
+    logfile $title
+    [ -z "$action" ] && CLI_PRINT=1
+    [ "$action" = "info" ] && CLI_PRINT=1
+    $cmd 2>&1 >> $CLI_LOG_FILE
+    local status=$?
+    logfile ""
+    logfile "BATCH NOTICE STATUS $status (Code de retour)"
+    grep '] PHP ' $CLI_LOG_FILE /dev/null >> $CLI_LOG_GLOBAL
+    local WARN=""
+    [ "$CLI_NOLOG" = "1" ] && WARN=" WARNING NOLOG"
+    [ "$status" -ne "0" ] && echo "$CLI_LOG_FILE EXIT $status : $title$WARN" >> $CLI_LOG_GLOBAL;
+    [ "$CLI_PRINT" = "1" ] && cat $CLI_LOG_FILE
+    exit $status
+}
+
+batchInfo(){
+	CLI_PRINT=1
+	CLI_NOLOG=1
+    batchStart $1 $2 info
+}
+
+logfile(){
+    [ -z "$*" ] && echo "" >> $CLI_LOG_FILE && return
+    echo `(export LANG=en_US;date +'[%Y-%m-%d %H-%M-%S]')` $* >> $CLI_LOG_FILE
+}
+
+# Variables globale
+BATCH=( $* )
+
+# Execution de la commande
+
+case "${BATCH[0]}.${BATCH[1]}" in
+batch.list)
+    batchList "${BATCH[2]}"
+    ;;
+batch.help|batch.)
+    batchHelp help
+    ;;
+batch.start)
+	CLI_LOG=$(var project ${BATCH[2]} logdir)
+	CLI_DATE=`date +'%Y-%m-%d'`
+	CLI_TIME=`date +'%Y-%m-%d.%H-%M-%S'`
+	CLI_LOG_GLOBAL="$CLI_LOG/$CLI_CMD.log"
+	CLI_LOG_FILE="$CLI_LOG/$CLI_CMD.log"
+    batchStart ${BATCH[@]:2}
+    ;;
+batch.info)
+	export CLI_LOG=$(var project ${BATCH[2]} logdir)
+	CLI_DATE=`date +'%Y-%m-%d'`
+	CLI_TIME=`date +'%Y-%m-%d.%H-%M-%S'`
+	CLI_LOG_GLOBAL="$CLI_LOG/$CLI_CMD.log"
+	CLI_LOG_FILE="$CLI_LOG/$CLI_CMD.log"
+    batchInfo "${BATCH[2]}" "${BATCH[3]}"
+    ;;
+batch.)
+    batchHelp "bug" "Commande '${BATCH[0]} ${BATCH[1]}' inconnue"
+    ;;
+*)
+    adminHelp "bug" "Commande '${BATCH[0]}' inconnue"
+    ;;
+esac
+
+exit 1

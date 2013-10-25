@@ -1,0 +1,192 @@
+
+; Project: UGAP - {{ ucprojectname}}
+; @version $Id
+; @package {{ ucprojectname}}-INSTALL
+
+; ==================================================================
+[CONSTANT]
+; Section des constantes de définition héritable via les dépendances
+; ==================================================================
+
+
+; ==================================================================
+[uri]
+; ==================================================================
+
+; Les uris manipulées par l'application
+section.include[] = ROOT_CONFIG "/{{ projectname}}.uri.ini"
+
+
+; ==================================================================
+[logfile]
+; Section des properties au format logfile://<varname>
+; ==================================================================
+
+; Default TTL can be overrrided 
+;section.ttl = SECTION_TTL
+
+; Comportement du système de logfile
+;  syslog	les traces sont envoyées dans le syslog même si un fichier de trace est déclaré
+;  file		les traces sont envoyées dans le fichier de trace déclaré
+;  all		les traces sont envoyées dans le syslog et le fichier de trace déclaré
+;  none		aucune trace n'est envoyée, ni dans un fichier, ni dans le syslog
+mode				= "file"
+
+; Format de la trace envoyée au syslog
+syslog.format		= LOGFILE_FORMAT_SYSLOG
+
+; Paramètre ident passé à la fonction openlog
+syslog.ident		= "PHP_APP"
+
+; Paramètre facility passé à la fonction openlog
+; Client La Poste:
+;	LOG_LOCAL3 pour les pilotes interactifs et les silos
+;	LOG_LOCAL4 pour les pilotes batches
+syslog.facility		= LOG_LOCAL3
+
+; Niveau minimum de trace au format syslog, voir http://www.php.net/manual/en/function.syslog.php
+;  LOG_EMERG   = 0    system is unusable
+;  LOG_ALERT   = 1    action must be taken immediately
+;  LOG_CRIT    = 2    critical conditions
+;  LOG_ERR     = 3    error conditions
+;  LOG_WARNING = 4    warning conditions
+;  LOG_NOTICE  = 5    normal, but significant, condition
+;  LOG_INFO    = 6    informational message
+;  LOG_DEBUG   = 7    debug-level message
+
+; Liste des traces définies
+; xxx.level       Niveau de trace au format syslog
+; xxx.log         Nom du fichier de trace (chemin complet), valeur spécifique "syslog" possible
+; xxx.format      Nom du format défini par l'applicatif
+
+; Cette section doit être incluse dans chaque fichier INI de chaque NL
+; avec la commande: section.include[]
+
+; Niveau minimum de trace au format syslog, voir http://www.php.net/manual/en/function.syslog.php
+;  LOG_EMERG   = 0    system is unusable
+;  LOG_ALERT   = 1    action must be taken immediately
+;  LOG_CRIT    = 2    critical conditions
+;  LOG_ERR     = 3    error conditions
+;  LOG_WARNING = 4    warning conditions
+;  LOG_NOTICE  = 5    normal, but significant, condition
+;  LOG_INFO    = 6    informational message
+;  LOG_DEBUG   = 7    debug-level message
+
+; Couples level/log : Niveau de trace / Nom du fichier
+
+logfile[]			= "ACL"
+acl.level           = LOGFILE_LEVEL
+acl.log             = DIR_LOGS "/" APP_INSTANCE ".log"
+acl.format          = "format.standard"
+
+logfile[]			= "AJAX"
+ajax.level          = LOGFILE_LEVEL
+ajax.log            = DIR_LOGS "/" APP_INSTANCE ".log"
+ajax.format         = "format.standard"
+
+logfile[]			= "ATOM"
+atom.level          = LOGFILE_LEVEL
+atom.log            = DIR_LOGS "/" APP_INSTANCE ".log"
+atom.format         = "format.standard"
+
+logfile[]			= "BATCH"
+batch.level         = LOGFILE_LEVEL
+batch.log           = DIR_LOGS "/" APP_INSTANCE ".log"
+batch.format        = "format.standard"
+
+logfile[]			= "CHRONO"
+chrono.level        = LOGFILE_LEVEL
+chrono.log          = DIR_LOGS "/" APP_INSTANCE ".log"
+chrono.format       = "format.standard"
+
+logfile[]			= "DAO"
+dao.level           = LOGFILE_LEVEL
+dao.log             = DIR_LOGS "/" APP_INSTANCE ".log"
+dao.format          = "format.standard"
+
+logfile[]			= "DAX"
+dax.level           = LOGFILE_LEVEL
+dax.log             = DIR_LOGS "/" APP_INSTANCE ".log"
+dax.format          = "format.standard"
+
+logfile[]			= "ETAT"
+etat.level          = LOGFILE_LEVEL
+etat.log            = DIR_LOGS "/" APP_INSTANCE ".log"
+etat.format         = "format.standard"
+
+logfile[]			= "FEED"
+feed.level          = LOGFILE_LEVEL
+feed.log            = DIR_LOGS "/" APP_INSTANCE ".log"
+feed.format         = "format.standard"
+
+logfile[]			= "GRAPHVIZ"
+graphviz.level      = LOGFILE_LEVEL
+graphviz.log        = DIR_LOGS "/" APP_INSTANCE ".log"
+graphviz.format     = "format.standard"
+
+logfile[]			= "JSON"
+json.level          = LOGFILE_LEVEL
+json.log            = DIR_LOGS "/" APP_INSTANCE ".log"
+json.format         = "format.standard"
+
+logfile[]			= "IHM"
+ihm.level           = LOGFILE_LEVEL
+ihm.log             = DIR_LOGS "/" APP_INSTANCE ".log"
+ihm.format          = "format.standard"
+
+logfile[]			= "FEED"
+feed.level          = LOGFILE_LEVEL
+feed.log            = DIR_LOGS "/" APP_INSTANCE ".log"
+feed.format         = "format.standard"
+
+logfile[]			= "PROPERTY"
+property.level      = LOGFILE_LEVEL
+property.log        = DIR_LOGS "/" APP_INSTANCE ".log"
+property.format     = "format.standard"
+
+logfile[]			= "REF"
+ref.level           = LOGFILE_LEVEL
+ref.log             = DIR_LOGS "/" APP_INSTANCE ".log"
+ref.format          = "format.standard"
+
+logfile[]			= "RESTFUL"
+restful.level		= LOGFILE_LEVEL
+restful.log			= DIR_LOGS "/" APP_INSTANCE ".log"
+restful.format		= "format.standard"
+
+logfile[]			= "SESSION"
+session.level       = LOGFILE_LEVEL
+session.log         = DIR_LOGS "/" APP_INSTANCE ".log"
+session.format      = "format.standard"
+
+logfile[]			= "SOAP"
+soap.level          = LOGFILE_LEVEL
+soap.log            = DIR_LOGS "/" APP_INSTANCE ".log"
+soap.format         = "format.standard"
+
+logfile[]			= "SOLR"
+solr.level          = LOGFILE_LEVEL
+solr.log            = DIR_LOGS "/" APP_INSTANCE ".log"
+solr.format         = "format.standard"
+
+logfile[]			= "SPV"
+spv.level           = LOGFILE_LEVEL
+spv.log             = DIR_LOGS "/" APP_INSTANCE ".log"
+spv.format          = "format.standard"
+
+logfile[]			= "URI"
+uri.level           = LOGFILE_LEVEL
+uri.log             = DIR_LOGS "/" APP_INSTANCE ".log"
+uri.format          = "format.standard"
+
+logfile[]			= "WSX"
+wsx.level           = LOGFILE_LEVEL
+wsx.log             = DIR_LOGS "/" APP_INSTANCE ".log"
+wsx.format          = "format.standard"
+
+; ------------------------------------------------------------------
+; Applicatif
+; ------------------------------------------------------------------
+
+; Ajouter ici les logs applicatifs si besoin
+

@@ -1,0 +1,75 @@
+#!/bin/bash
+
+
+log_help() {
+    case "$1" in
+        *)
+            [ ! -z "$2" ] && echo "Information:"
+            [ ! -z "$2" ] && echo "   $2"
+            [ ! -z "$3" ] && echo "   $3"
+            echo "Usage:"
+            echo "   $CLI_CMD log rotate"
+            echo "      Permet de compresser les dossiers batch et supprime les anciennes archives à la manière de logrotate"
+            echo "   $CLI_CMD log [help]"
+            echo "      Affichage de l'aide"
+            ;;
+    esac
+    exit 1
+}
+
+logRotateBatch(){
+    local p;
+    for p in ${projects[@]}
+    do
+    	local logdir=$(var project $p logdir)"
+    	local logdir_maxdays=$(var project $p logdir_maxdays)"
+
+        local TODAY=`date '+%Y-%m-%d'`
+        local YESTERDAY=`date '+%Y-%m-%d' --date "1 days ago"`
+        local LIMIT=`date '+%Y-%m-%d' --date "${logdir_maxdays} days ago"`
+
+        cd ${logdir}
+        
+        # On compresse tous les dossiers qui ne sont pas à la date du jour
+        local j
+        for j in `ls -1d ????-??-??/ 2>/dev/null`
+        do
+            local FOLDERNAME=`echo $j|sed -e 's/\///'`
+            if [[ ! ( $FOLDERNAME == $TODAY || $FOLDERNAME == $YESTERDAY ) ]]
+            then
+            	tar cvzf $FOLDERNAME.tar.gz $FOLDERNAME >/dev/null 2>&1
+				rm -rf $j
+            fi
+        done
+
+        # On regarde si un des tar.gz a une date inférieure à la limit et si oui
+        # on supprime ce tar.gz
+		local k
+        for k in `ls ????-??-??.tar.gz 2>/dev/null`
+        do
+            local DATE=`echo $k|sed -e 's/.tar.gz//'`
+            if [[ $DATE < $LIMIT ]]
+            then
+            	rm $k
+            fi
+        done
+    done
+    exit 0
+}
+
+
+# Variables globale
+LOG=( $* )
+
+# Execution de la commande
+case "${LOG[0]}.${LOG[1]}" in
+log.rotate)
+    logRotateBatch
+    ;;
+log.help|log.*)
+    log_help "help"
+    ;;
+*)
+    admin_help "bug" "Commande '${LOG[0]}' inconnue"
+    ;;
+esac

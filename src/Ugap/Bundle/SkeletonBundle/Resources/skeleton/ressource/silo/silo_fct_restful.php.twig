@@ -1,0 +1,111 @@
+<?php
+
+/**
+ * Project: UGAP - {{ ucprojectname }}
+ *
+ * Services REST de la ressource {{ ucressourcename }}
+ *
+ * @author majdi sfaxi <majdi.sfaxi@capgemini.com>
+ * @package {{ ucprojectname }}-SILO-{{ ucressourcename }}
+ * @subpackage RESTFUL
+ * @filesource
+ */
+
+/**
+ * Recherche Open Search
+ * @param String $q			Le query à exécuter
+ * @param String $p			Les paramètres à passer au query
+ * @param Integer $start	Le premier enregistrement à retourner
+ * @param Integer $max		Le nombre d'enregistrement dans la page
+ * @param String $sort		Le paramètre de tri
+ * @param String $format	Le format de la réponse attendu, xml|json
+ */
+
+require_once pathFile('hpp_krn_date.php');
+require_once pathFile('hpp_krn_guid.php');
+require_once pathFile('lib_dao_{{ ressourcename }}.php');
+require_once pathFile('lib_solr_{{ ressourcename }}.php');
+
+
+function silo{{ ucfirstressourcename }}RestGET($id,$format){
+	if($format!=='json'){
+		throw new Exception
+		('Format '.$format.' not found, expected formats: json only'
+				,HTTP_NOTIMPLEMENTED
+		);
+	}
+
+	$qry=daoSelect
+		( '{{ ressourcename }}'
+		, array
+			( 'table'
+			, 'id'
+			, '_version_'
+			)
+		, 'id = :id'
+		, array
+			( ':id' => $id
+			)
+		);
+	${{ ressourcename }} = daoFetchAll($qry);
+	// Un seul résultat attendu
+	if(count(${{ ressourcename }})<>1){
+		throw new Exception
+		('Accès au {{ ressourcename }} '.var_export($id,true)
+				,HTTP_INTERNALSERVERERROR
+		);
+	}
+	// Envoi du résultat
+	httpSendCodeHTTP(HTTP_OK,array('Content-type: text/json'));
+	echo json_encode(${{ ressourcename }}[0]);
+}
+
+function silo{{ ucfirstressourcename }}RestPost($json,$id){
+	if(!isset($json['table'])){
+		throw new Exception('Field "table" MUST BE set to "{{ ressourcename }}", field not found',HTTP_BADREQUEST);
+	}
+	if($json['table']<>'{{ ressourcename }}'){
+		throw new Exception('Field table MUST BE {{ ressourcename }}, found: '.var_export($json['table'],true),HTTP_BADREQUEST);
+	}
+	$result = daoInsert
+	( '{{ ressourcename }}'
+			, array
+			( 'table'	=> '{{ ressourcename }}'
+					, 'id' 					=> $id
+			)
+	);
+	httpSendCodeHTTP(HTTP_CREATED,array('Content-type: text/json'));
+	echo  json_encode(array('id'=>$id,'_version_'=>'1'));
+}
+
+function silo{{ ucfirstressourcename }}RestPUT($id,$json,$etag){
+	$result = daoUpdate
+	( '{{ ressourcename }}'
+			, array
+			( 'id' => $id
+					,'_version_' => $etag
+			)
+			, array
+			( 'id' => $id
+			)
+	);
+
+	if ($result > 0) {
+		$json['_version_'] = $etagNew;
+		echo  json_encode($json);
+	} else {
+		throw new Exception
+		('id {{ ressourcename }} :'.$id.' _version_ utilisateur:'.$etagNew
+				,HTTP_CONFLICT
+		);
+	}
+}
+
+function silo{{ ucfirstressourcename }}RestDELETE($id){
+	daoDelete
+	( '{{ ressourcename }}'
+			, array('id' => $id)
+	);
+	httpSendCodeHTTP(HTTP_OK,array('Content-type: text/json'));
+	echo json_encode("ok");
+}

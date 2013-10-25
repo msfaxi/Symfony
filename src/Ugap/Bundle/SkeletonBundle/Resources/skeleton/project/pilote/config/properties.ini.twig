@@ -1,0 +1,52 @@
+
+; ================================================================
+[DEPENDENCY]
+; ================================================================
+; Dépendances envers d'autres fichiers INI
+
+; Le fichier de définition de l'application
+section.dependency[] = ROOT_CONFIG "/{{ projectname }}.ini"
+
+
+; ================================================================
+[CONSTANT]
+; ================================================================
+
+
+; ================================================================
+[uri]
+; ================================================================
+
+; Les uris manipulées par l'application
+section.include[] = ROOT_CONFIG "/{{ projectname }}.uri.ini"
+
+
+; ================================================================
+[logfile]
+; ================================================================
+
+; L'ensemble des fichiers de logfile du framework
+section.include[] = ROOT_CONFIG "/{{ projectname }}.ini"
+
+; Les niveaux de trace peuvent être surchargé localement ici
+;wsx.level		= LOG_NOTICE
+
+
+; ================================================================
+[secret]
+; ================================================================
+
+; Clés pour les services WSX
+section.include[] = ROOT_CONFIG "/{{ projectname }}.secret.ini"
+
+
+; ==================================================================
+; Messages d'erreurs à remonter dans le navigateur
+; ==================================================================
+
+[ajax.default]
+titre             = "Une erreur non répertoriée est survenue"
+section.include[] = PATH_CONFIG "/http.code.ini#http.cause"
+
+
+

@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Moteur de recherche
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('pilote_fct_ajax_search.php');
+
+ajaxDefine
+	( 'search.query'			// Ajax name from .htaccess
+	, 'GET'						// Allowed verb
+	, 'searchCall'				// Function
+	, array						// Parameters
+		(ajaxParamAsJson('query')
+		)
+	, array						// ACL
+		(array('resource'=>'application','right'=>'read')
+		)
+	);
+

@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * Project: UGAP - { ucprojectname }}
+ *
+ * Déconnexion de l'utilisateur
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package CAPGEMINI-KRN
+ * @subpackage AJAX
+ */
+
+require_once pathFile('hpp_krn_ajax.php');
+require pathFile('pilote_session_{ projectname }}.php');
+
+/**
+ * Exécution des traitements AJAX
+ */
+try {
+
+	ajaxRun();
+
+} catch (Exception $ex) {
+
+	ajaxError($ex);
+
+}
+
+function ajaxRun(){
+	ajaxLogDebug('AJAX call: $_REQUEST = '.var_export($_REQUEST,true));
+	// Mauvaise config des RewriteRule dans les fichiers .htaccess
+	if(!isset($_REQUEST['_ajax'])){
+		throw new Exception
+			('Requête AJAX malformée, voir le fichier .htaccess, uri = '.$SERVER['SCRIPT_URI']
+			,HTTP_NOTFOUND
+			);
+	}
+	// 
+	list($file)=explode('.',$_REQUEST['_ajax'],2);
+	ob_start();
+	$file='pilote_ajax_'.$file.'.php';
+	require_once pathFile($file);
+	$content = ob_get_contents();
+	if($content!=''){
+		throw new Exception
+			('Requête AJAX: le fichier '.$file.' ne doit pas faire de echo, uri = '.$SERVER['SCRIPT_URI']
+			,HTTP_INTERNALSERVERERROR
+			);
+	}
+	// By default, results are json text
+	header('Content-type: text/json');
+	header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
+	ajaxExecute($_REQUEST['_ajax'],'ajaxAclHandler');
+}
+
+/**
+ * Le logout ne nécessite aucun contrôle
+ */
+function ajaxAclHandler($ajaxEntry){
+	return true;
+}
+

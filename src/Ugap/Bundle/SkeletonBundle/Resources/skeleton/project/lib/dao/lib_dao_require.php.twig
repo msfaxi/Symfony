@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * @author majdi sfaxi <majdi.sfaxi@capgemini.com>
+ * @package {{ucprojectname}}-SILO-ACL
+ * @subpackage DAO
+ */
+
+
+
+/**
+ * Chargement Dépendance sur la lib hpp
+ */
+require_once pathFile('hpp_krn_dao.php');
+
+
+/********************************************
+ * 	Chargement des plugins dao du projet	*
+ *******************************************/
+
+
+// /**
+//  * Install the ORACLE plugin
+//  */
+// require_once pathFile('hpp_krn_dao_oracle.php');
+
+// /**
+//  * Install the MySQL plugin
+// */
+// require_once pathFile('hpp_krn_dao_mysql.php');
+
+/**
+ * Install the SOLR plugin
+*/
+require_once pathFile('hpp_krn_dao_solr.php');
+
+// /**
+//  * Install the POSTGRESQL plugin
+// */
+// require_once pathFile('hpp_krn_dao_postgresql.php');
+
+// /**
+//  * Install the Sqlite plugin
+//  */
+// require_once pathFile('hpp_krn_dao_sqlite.php');

@@ -1,0 +1,79 @@
+#!/bin/bash
+
+configHelp() {
+    case "$1" in
+    help)
+        [ ! -z "$2" ] && echo "Information:"
+        [ ! -z "$2" ] && echo "   $2"
+        [ ! -z "$3" ] && echo "   $3"
+        echo "Usage:"
+        echo "   $CLI_CMD config show"
+        echo "      Affichage de la configuration"
+        echo "   $CLI_CMD config dump"
+        echo "      Affichage de la configuration source"
+        echo "   $CLI_CMD config [help]"
+        echo "      Affichage de l'aide"
+        ;;
+    unset)
+        echo "Erreur de configuration:"
+        echo "   Configuration non effectuée, paramètre '$2'"
+        configHelp "help"
+        ;;
+    bug|*)
+        echo "Erreur de configuration:"
+        [ ! -z "$2" ] && echo "   $2"
+        [ ! -z "$3" ] && echo "   $3"
+        configHelp "help"
+        ;;
+    esac
+    exit 1
+}
+
+configShow(){
+    echo "Loaded configuration files:"
+    for i in $CLI_CONF
+	do
+		echo "	$(readlink -f $i)"
+	done
+    echo 
+    echo "Verifying commands:"
+    local c;
+    for c in ${commands[@]}
+    do
+    	echo "	for $c :"
+    	echo "		script     = $(var command $c script)"
+    done
+    echo 
+    echo "Verifying projects:"
+    local p;
+    for p in ${projects[@]}
+    do
+    	echo "	for $p :"
+    	echo "		projdir        = $(var project $p projdir)"
+    	echo "		preprocess     = $(var project $p preprocess)"
+    	echo "		logdir         = $(var project $p logdir)"
+    	echo "		logdir_maxdays = $(var project $p logdir_maxdays)"
+    done
+    echo 
+    exit 0
+}
+
+# Variables globale
+CONFIG=( $* )
+
+# Execution de la commande
+case "${CONFIG[0]}.${CONFIG[1]}" in
+config.show)
+    configShow
+    ;;
+config.help|config.)
+    configHelp "help" "Config params: ${CONFIG[@]}"
+    ;;
+config.*)
+    configHelp "bug" "Commande '${CONFIG[0]} ${CONFIG[1]}' inconnue"
+    ;;
+*)
+    adminHelp "bug" "Commande '${CONFIG[0]}' inconnue"
+    ;;
+esac
+

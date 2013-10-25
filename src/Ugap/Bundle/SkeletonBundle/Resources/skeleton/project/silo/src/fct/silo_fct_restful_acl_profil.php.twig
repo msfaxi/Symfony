@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Services REST de la ressource profil du silo ACL
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-SILO-ACL
+ * @subpackage RESTFUL
+ * @filesource
+ */
+
+require_once pathFile('hpp_krn_date.php');
+require_once pathFile('hpp_krn_guid.php');
+require_once pathFile('lib_dao_acl_profil.php');
+
+function siloAclProfilRestGET($id,$format){
+	if($format!=='json'){
+		throw new Exception
+			('Format '.$format.' not found, expected formats: json only'
+			,HTTP_NOTIMPLEMENTED
+			);
+	}
+
+	$qry=daoSelect
+		( 'profil'
+		, array
+			( 'table'
+			, 'id'
+			, '_version_'
+			, 'profil_id'
+			, 'label'
+			)
+		, 'id = :id'
+		, array
+			( ':id' => $id
+			)
+		);
+	$profil = daoFetchAll($qry);
+	// Un seul résultat attendu
+	if(count($profil)<>1){
+		throw new Exception
+			('Accès à l\'utilisateur '.var_export($id,true)
+			,HTTP_INTERNALSERVERERROR
+			);
+	}
+	// Envoi du résultat
+	httpSendCodeHTTP(HTTP_OK,array('Content-type: text/json'));
+	echo json_encode($profil[0]);
+}
+
+function siloAclProfilRestPost($json,$id){
+	if(!isset($json['table'])){
+		throw new Exception('Field "table" MUST BE set to "profil", field not found',HTTP_BADREQUEST);
+	}
+	if($json['table']<>'profil'){
+		throw new Exception('Field table MUST BE profil, found: '.var_export($json['table'],true),HTTP_BADREQUEST);
+	}
+	$result = daoInsert
+		( 'profil'
+		, array
+			( 'table'		=> 'profil'
+			, 'id' 			=> $id
+			, 'profil_id' 	=> $json['profil_id']
+			, 'label' 		=> $json['label']
+//			, 'acl'			=> $json['acl']		// Contrôle d'accès à la ressource profil
+			)
+		);
+	httpSendCodeHTTP(HTTP_CREATED,array('Content-type: text/json'));
+	echo  json_encode(array('id'=>$id,'_version_'=>'1'));
+}
+
+function siloAclProfilRestPUT($id,$json,$etag){
+	$result = daoUpdate
+		( 'profil'
+		, array
+			( 'id' => $id
+			,'_version_' => $etag
+			)
+		, array
+			( 'id' 			=> $id
+			, 'profil_id' 	=> $json['profil_id']
+			, 'label' 		=> $json['label']
+			)
+		);
+	
+	if ($result > 0) {
+		$json['_version_'] = $etagNew;
+		echo  json_encode($json);
+	} else {
+		throw new Exception
+			('Profil: id='.$id.' _version_='.$etagNew 
+				,HTTP_CONFLICT
+			);
+	}
+}
+
+function siloAclProfilRestDELETE($id){
+	daoDelete
+		( 'profil'
+		, array('id' => $id)
+		);
+	httpSendCodeHTTP(HTTP_OK,array('Content-type: text/json'));
+	echo json_encode("ok");
+}

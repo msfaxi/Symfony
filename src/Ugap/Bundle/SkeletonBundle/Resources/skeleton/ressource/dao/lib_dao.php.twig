@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * Project: UGAP - {{ ucprojectname }}
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ ucprojectname }}-SILO-USER
+ * @subpackage DAO
+ */
+
+
+/**
+ * Dépendance sur la bdd
+ */
+require_once pathFile('lib_dao_bdd_solr.php');
+require_once pathFile('lib_guid_solr.php');
+
+/**
+ * Definition de la table des dossiers
+ */
+daoDefineTable
+	( '{{ressourcename}}'
+	, '{{ucressourcename}}'
+	, 'bdd.solr'
+	,array
+		( 'id'
+		, 'table'			// Document type
+		, '_version_'		// Version automatique SOLR
+		)
+	);
+
+//Exemple 
+daoDefineSolrFields
+	( '{{ressourcename}}'
+	, array
+		('xxxx'	=> array('multiple'=>true)					// Le champ possède plusieurs valeurs
+ 		,'yyyy'		=> array('multiple'=>true)					// Le champ possède plusieurs valeurs
+ 		,'zzzz' 	=> array('facultative'=>true,'default'=>'')	// Le champ peut être absent du document récupéré dans Solr
+		)
+	);
+
+

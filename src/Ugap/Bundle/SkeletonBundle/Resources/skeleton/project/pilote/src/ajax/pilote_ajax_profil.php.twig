@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * Project: UGAP - {{ucprojectname}}
+ *
+ * Ressource profil
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @package {{ucprojectname}}-PILOTE
+ * @subpackage AJAX
+ */
+
+require pathFile('pilote_fct_ajax_profil.php');
+
+ajaxDefine
+	( 'profil.add'				// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'profilAdd'				// Function
+	, array						// Parameters
+		(ajaxParamBodyAsJson()
+		)
+	, array						// ACL
+		(array('resource'=>'profil','right'=>'create')
+		)
+	);
+
+ajaxDefine
+	( 'profil.put'				// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'profilPut'				// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		,ajaxParamBodyAsJson()
+		)
+	, array						// ACL
+		(array('resource'=>'profil','right'=>'write')
+		)
+	);
+
+ajaxDefine
+	( 'profil.delete'			// Ajax name from .htaccess
+	, 'POST'					// Allowed verb
+	, 'profilDelete'			// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		)
+	, array						// ACL
+		(array('resource'=>'profil','right'=>'delete')
+		)
+	);
+
+ajaxDefine
+	( 'profil.get'				// Ajax name from .htaccess
+	, 'GET'						// Allowed verb
+	, 'profilGet'				// Function
+	, array						// Parameters
+		(ajaxParam('id')
+		)
+	, array						// ACL
+		(array('resource'=>'profil','right'=>'read')
+		)
+	);

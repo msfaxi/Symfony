@@ -1,0 +1,7 @@
+parameters:
+#    ugap_skeleton.example.class: Ugap\Bundle\SkeletonBundle\Example
+
+services:
+#    ugap_skeleton.example:
+#        class: %ugap_skeleton.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

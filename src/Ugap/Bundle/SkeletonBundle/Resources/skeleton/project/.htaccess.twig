@@ -1,0 +1,111 @@
+
+# ==================================
+# Voir le fichier /etc/httpd/conf/httpd.conf
+# pour activer ce fichier .htaccess via la commande:
+# AllowOverride All
+# ==================================
+
+# ==================================
+# Mise en service du module Rewrite
+# ==================================
+
+RewriteEngine 	On
+RewriteBase 	/{{ projectname }}
+
+# Directives not allowed in htaccess file
+# See /etc/httpd/httpd.conf for user specific apache2 configuration
+# RewriteMap 		escape int:escape
+# RewriteLog 		"/var/log/httpd/{{ projectname }}.rewrite.log" 
+# RewriteLogLevel 	2
+
+
+# ==================================
+# URL publiques APPLICATION
+# ==================================
+
+#RewriteRule ^[/]{0,1}$                      /{{ projectname }}/{{ projectname }}-ihm/www-prod/ [R]
+
+
+# ==================================
+# URL publiques IHM
+# ==================================
+
+# Version à changer à chaque livraison
+# Remplacer version/0.0.1 par version/0.0.2
+
+# IHM de Production
+
+RewriteRule ^$                              /{{ projectname }}/ihm/ [R]
+RewriteRule ^[/]$                           /{{ projectname }}/ihm/ [R]
+RewriteRule ^ihm$                           /{{ projectname }}/ihm/ [R]
+RewriteRule ^ihm/$                          /{{ projectname }}/{{ projectname }}-ihm/www-prod/ [PT,L]
+RewriteRule ^ihm/version/0.0.1/(.+)$        /{{ projectname }}/{{ projectname }}-ihm/www-prod/static/$1 [PT,L]
+
+# IHM de Développement
+
+RewriteRule ^dev$                           /{{ projectname }}/dev/ [R]
+RewriteRule ^dev/$                          /{{ projectname }}/{{ projectname }}-ihm/www/ [PT,L]
+# Compilation LESS à la volée
+RewriteRule ^dev/version/0.0.1/{{ projectname }}.css$   /{{ projectname }}/{{ projectname }}-ihm/www/lib/less/less.php?file=static/{{ projectname }}.less [PT,L]
+RewriteRule ^dev/version/0.0.1/(.*)$        /{{ projectname }}/{{ projectname }}-ihm/www/static/$1 [PT,L]
+RewriteRule ^dev/(.+)$                      /{{ projectname }}/{{ projectname }}-ihm/www/$1 [PT,L]
+
+# ==================================
+# URL publiques PILOTE
+# ==================================
+
+# Authentification
+RewriteRule ^pilote/auth/boot$              /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=ajax.php&_ajax=auth.boot     [QSA,PT,L]
+RewriteRule ^pilote/auth/login$             /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=ajax.php&_ajax=auth.login    [QSA,PT,L]
+RewriteRule ^pilote/auth/reset$             /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=ajax.php&_ajax=auth.reset    [QSA,PT,L]
+RewriteRule ^pilote/auth/logout$            /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=logout.php&_ajax=auth.logout [QSA,PT,L]
+
+# Page d'accueil
+RewriteRule ^pilote/home/info$              /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=ajax.php&_ajax=home.info [QSA,PT,L]
+
+# Recherche
+RewriteRule ^pilote/search$                 /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=ajax.php&_ajax=search.query [QSA,PT,L]
+
+# Les ressources CRUD
+# - user        Utilisateurs
+# - profil      Profils
+# - project     Projets
+# - structure   Structures
+# - acl         Contrôles d'accès
+RewriteRule ^pilote/([a-z]+)/add$           /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=ajax.php&_ajax=$1.add           [QSA,PT,L]
+RewriteRule ^pilote/([a-z]+)/get/(.+)$      /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=ajax.php&_ajax=$1.get&id=$2     [QSA,PT,L]
+RewriteRule ^pilote/([a-z]+)/put/(.+)$      /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=ajax.php&_ajax=$1.put&id=$2     [QSA,PT,L]
+RewriteRule ^pilote/([a-z]+)/delete/(.+)$   /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=ajax.php&_ajax=$1.delete&id=$2  [QSA,PT,L]
+
+# Validator W3C
+RewriteRule ^pilote/w3c/html$               /{{ projectname }}/{{ projectname }}-pilote/control.php?_htdocs=ajax.php&_ajax=w3c.html         [QSA,PT,L]
+
+# ==================================
+# URL publiques SILO
+# ==================================
+
+RewriteRule ^silo/search$                        /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php          [QSA,PT,L]
+
+RewriteRule ^silo/user$                          /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php          [QSA,PT,L]
+RewriteRule ^silo/user/([A-Za-z0-9-]+)$          /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php&id=$1    [QSA,PT,L]
+RewriteRule ^silo/user/([A-Za-z0-9-]+)/auth$     /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php&login=$1 [QSA,PT,L]
+RewriteRule ^silo/user/([A-Za-z0-9@._-]+)/reset$ /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php&email=$1 [QSA,PT,L]
+
+RewriteRule ^silo/project$                          /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php          [QSA,PT,L]
+RewriteRule ^silo/project/([A-Za-z0-9-]+)$          /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php&id=$1    [QSA,PT,L]
+
+RewriteRule ^silo/structure$                          /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php          [QSA,PT,L]
+RewriteRule ^silo/structure/([A-Za-z0-9-]+)$          /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php&id=$1    [QSA,PT,L]
+
+RewriteRule ^silo/acl/profil$                    /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php          [QSA,PT,L]
+RewriteRule ^silo/acl/profil/([A-Za-z0-9-]+)$    /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php&id=$1    [QSA,PT,L]
+
+RewriteRule ^silo/acl/droit$                     /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php          [QSA,PT,L]
+RewriteRule ^silo/acl/droit/([A-Za-z0-9-]+)$     /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php&id=$1    [QSA,PT,L]
+
+RewriteRule ^silo/acl/ressource$                 /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php          [QSA,PT,L]
+RewriteRule ^silo/acl/ressource/([A-Za-z0-9-]+)$ /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php&id=$1    [QSA,PT,L]
+
+RewriteRule ^silo/acl/acl$                       /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php          [QSA,PT,L]
+RewriteRule ^silo/acl/acl/([A-Za-z0-9-]+)$       /{{ projectname }}/{{ projectname }}-silo/control.php?_htdocs=silo.php&id=$1    [QSA,PT,L]
+

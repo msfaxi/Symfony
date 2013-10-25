@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * Project: UGAP- {{ ucprojectname }}
+ *
+ * Services REST de la ressource  {{ ucressourcename }}
+ *
+ * @author majdi sfaxi <majdi.sfaxi@capgemini.com>
+ * @package {{ ucprojectname }}-SILO-{{ ucressourcename }}
+ * @subpackage RESTFUL
+ * @version $Id$
+ */
+
+require_once pathFile('hpp_krn_restful.php');
+require_once pathFile('lib_wsx_{{ ressourcename }}.php');
+require_once pathFile('lib_dao_{{ ressourcename }}.php');
+
+/**
+ * Dépendances sur les fonctions rest applicatives pour la ressource
+ */
+require_once pathFile('silo_fct_restful_{{ ressourcename }}.php');
+
+/**
+ * Définitions des services REST sur la ressource {{ ressourcename }}
+ */
+restfulDefine
+	('ws.{{ ressourcename }}'
+	,array
+		(restfulDefinePOST
+		    ('silo{{ ucfirstressourcename }}RestPost'
+		    ,array
+		    	(restfulParamBodyAsJson()
+		        ,restfulParamEtagNew('uuid.silo.{{ ressourcename }}')
+		        )
+		    ,array
+				('{{ projectname }}-pilote'
+		    	)
+			)
+		,restfulDefineOpenSearch
+		    ('silo{{ ucfirstressourcename }}RestOpenSearch'
+		    ,array
+		    	('{{ projectname }}-pilote'
+		    	)
+		    )
+		)
+	);
+
+restfulDefine
+	('ws.{{ ressourcename }}.id'
+	,array
+		(restfulDefineGET(
+		    'silo{{ ucfirstressourcename }}RestGET'
+		    ,array
+		    	(restfulParam('id')
+		    	,restfulParam('format','json')	// json | autre format à supporter?
+		    	)
+		    ,array
+		    	('{{ projectname }}-pilote'
+		    	)
+		    )
+		,restfulDefinePUT
+			('silo{{ ucfirstressourcename }}RestPUT'
+		    ,array
+		    	(restfulParam('id')
+		        ,restfulParamBodyAsJson()
+		        ,restfulParamEtagFromJson('etag')
+		    	,restfulParamEtagNew('uuid.silo.{{ ressourcename }}.version')
+		        )
+		    ,array
+		    	('{{ projectname }}-pilote'
+		    	)
+		    )
+ 		,restfulDefineDELETE
+ 			('silo{{ ucfirstressourcename }}RestDELETE'
+		    ,array
+ 		    	(restfulParam('id')
+ 		    	 ,restfulParamAsJson('json')
+ 		    	 ,restfulParamEtagNew('uuid.silo.{{ ressourcename }}.version')
+ 		        )
+		    ,array
+		    	('{{ projectname }}-pilote'
+ 		    	)
+ 		    )
+		)
+	);

@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * Project: UGAP - {{ ucprojectname }}
+ *
+ * Gestionnaire des appels AJAX.
+ *
+ * @author Jean-Pierre Arneodo <jean-pierre.arneodo@capgemini.com>
+ * @author Christian Cougourdan <christian.cougourdan@capgemini.com>
+ * @package CAPGEMINI-KRN
+ * @subpackage AJAX
+ */
+
+require_once pathFile('hpp_krn_ajax.php');
+require pathFile('pilote_session_{{ projectname }}.php');
+
+/**
+ * Exécution des traitements AJAX
+ */
+try {
+
+	ajaxRun();
+
+} catch (Exception $ex) {
+
+	ajaxError($ex);
+
+}
+
+function ajaxRun(){
+	// Mauvaise config des RewriteRule dans les fichiers .htaccess
+	if(!isset($_REQUEST['_ajax'])){
+		throw new Exception
+			('Requête AJAX malformée, voir le fichier .htaccess, uri = '.$SERVER['SCRIPT_URI']
+			,HTTP_NOTFOUND
+			);
+	}
+	// 
+	list($file)=explode('.',$_REQUEST['_ajax'],2);
+	ob_start();
+	$file='pilote_ajax_'.$file.'.php';
+	require_once pathFile($file);
+	$content = ob_get_contents();
+	if($content!=''){
+		throw new Exception
+			('Requête AJAX: le fichier '.$file.' ne doit pas faire de echo, uri = '.$SERVER['SCRIPT_URI']
+			,HTTP_INTERNALSERVERERROR
+			);
+	}
+	// By default, results are json text
+	header('Content-type: text/json');
+	header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
+	ajaxExecute($_REQUEST['_ajax'],'ajaxAclHandler');
+}
+
+/**
+ * Exemple:
+ * <code>
+ * 	  $acl=array
+ *		(array('resource'=>'utilisateur','right'=>'write')
+ *		);
+ * </code>
+ * @param array $acl
+ * @return boolean
+ */
+function ajaxAclHandler($ajaxEntry){
+	// Credentials are in session
+	$credentials = sessionGet('{{ projectname }}', 'acl');
+	// All acls must be true
+	foreach($ajaxEntry['a'] as $a){
+		if ( !isset($credentials[$a['resource']][$a['right']]) or !$credentials[$a['resource']][$a['right']] ) {
+			ajaxLogWarning
+				('ACL failed on ajax %s: ACL=%s CREDENTIALS=%s'
+				,$ajaxEntry['n']
+				,var_export($ajaxEntry['a'],true)
+				,var_export($credentials,true)
+				);
+			// No more cookies
+			sessionDelete('{{ projectname }}');
+			return false;
+		}
+	}
+	ajaxLogDebug
+		('ACL OK on ajax %s: ACL=%s CREDENTIALS=%s'
+		,$ajaxEntry['n']
+		,var_export($ajaxEntry['a'],true)
+		,var_export($credentials,true)
+		);
+	// Remettre la session disponible pendant un certain temps à partir de maintenant
+	sessionRefresh('{{ projectname }}');
+	return true;
+}
+
